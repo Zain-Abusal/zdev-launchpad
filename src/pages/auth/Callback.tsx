@@ -11,8 +11,8 @@ const Callback = () => {
   useEffect(() => {
     const handle = async () => {
       try {
-        // Parse and store session from the URL after OAuth redirect
-        const { data, error } = await supabase.auth.getSessionFromUrl();
+        // Parse and store session from the URL after OAuth redirect (Supabase v2+)
+        const { data, error } = await supabase.auth.exchangeCodeForSession(window.location.href);
 
         if (error) throw error;
 
