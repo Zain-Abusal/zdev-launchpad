@@ -15,8 +15,9 @@ export const Header = () => {
       <header className="sticky top-0 z-50 border-b border-border glass-effect">
         <div className="container mx-auto px-4">
           <nav className="flex h-16 items-center justify-between">
-            <Link to="/" className="text-2xl font-bold tracking-tight hover:opacity-80 transition-opacity">
-              zdev
+            <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+              <img src="/favicon.ico" alt="site logo" className="h-8 w-8" />
+              <span className="sr-only">zdev</span>
             </Link>
 
             <div className="hidden md:flex items-center gap-6">
