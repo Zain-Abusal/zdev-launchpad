@@ -81,8 +81,9 @@ A complete full-stack freelance developer brand built with React, TypeScript, Ta
 
 3. **Configure environment variables**
    
-   Copy `.env.example` to `.env` and configure:
+   Create a `.env` file at the project root (you can copy the provided template) and configure your values:
    ```bash
+   # create a .env from the template (optional)
    cp .env.example .env
    ```
 

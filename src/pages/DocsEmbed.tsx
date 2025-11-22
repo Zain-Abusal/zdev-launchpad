@@ -1,53 +1,36 @@
-import { motion } from 'framer-motion';
-import { PublicLayout } from '@/components/layout/PublicLayout';
-import { Button } from '@/components/ui/button';
-import { ExternalLink } from 'lucide-react';
-
 import { env } from '@/lib/env';
+import { ExternalLink } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
 
 const DocsEmbed = () => {
-  const DOCS_URL = env.docsUrl;
+  const DOCS_URL = env.docsUrl || 'https://docs.shopzyra.site';
 
   return (
-    <PublicLayout>
-      <section className="container mx-auto px-4 py-20">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-8"
-        >
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Documentation</h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-6">
-            Comprehensive guides and documentation for all projects
-          </p>
-          <a href={DOCS_URL} target="_blank" rel="noopener noreferrer">
-            <Button size="lg">
-              <ExternalLink className="mr-2 h-4 w-4" />
-              Open Full Documentation
-            </Button>
-          </a>
-        </motion.div>
+    <div style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', right: 16, top: 16, zIndex: 40 }}>
+        <a href={DOCS_URL} target="_blank" rel="noopener noreferrer">
+          <Button size="sm">
+            <ExternalLink className="mr-2 h-4 w-4" />
+            Open in new tab
+          </Button>
+        </a>
+      </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="rounded-xl overflow-hidden shadow-lg border border-border"
-          style={{ height: '80vh' }}
-        >
-          <iframe
-            src={DOCS_URL}
-            style={{
-              width: '100%',
-              height: '100%',
-              border: 'none',
-            }}
-            title="Documentation"
-          />
-        </motion.div>
-      </section>
-    </PublicLayout>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4 }}
+        style={{ width: '100%', height: '100%' }}
+      >
+        <iframe
+          src={DOCS_URL}
+          style={{ width: '100vw', height: '100vh', border: 'none' }}
+          title="Documentation"
+          allowFullScreen
+        />
+      </motion.div>
+    </div>
   );
 };
 

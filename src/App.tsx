@@ -19,6 +19,7 @@ import DocsEmbed from "./pages/DocsEmbed";
 // Auth Pages
 import SignIn from "./pages/auth/SignIn";
 import SignUp from "./pages/auth/SignUp";
+import Callback from "./pages/auth/Callback";
 
 // Client Pages
 import ClientDashboard from "./pages/client/Dashboard";
@@ -69,6 +70,7 @@ const App = () => (
               {/* Auth Routes */}
               <Route path="/auth/sign-in" element={<SignIn />} />
               <Route path="/auth/sign-up" element={<SignUp />} />
+              <Route path="/auth/callback" element={<Callback />} />
 
               {/* Client Routes */}
               <Route path="/client" element={<ClientDashboard />} />
