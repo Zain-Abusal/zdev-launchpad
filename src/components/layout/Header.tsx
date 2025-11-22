@@ -16,7 +16,7 @@ export const Header = () => {
         <div className="container mx-auto px-4">
           <nav className="flex h-16 items-center justify-between">
             <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-              <img src="/favicon.ico" alt="site logo" className="h-8 w-8" />
+              <img src="/favicon.ico" alt="site logo" className="h-8 w-auto object-contain" />
               <span className="sr-only">zdev</span>
             </Link>
 

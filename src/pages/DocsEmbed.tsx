@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 
 const DocsEmbed = () => {
-  const DOCS_URL = env.docsUrl || 'https://docs.shopzyra.site';
+  const DOCS_URL = 'https://docs.shopzyra.site';
 
   return (
     <div style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>
