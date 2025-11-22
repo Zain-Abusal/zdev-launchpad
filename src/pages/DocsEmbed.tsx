@@ -3,8 +3,10 @@ import { PublicLayout } from '@/components/layout/PublicLayout';
 import { Button } from '@/components/ui/button';
 import { ExternalLink } from 'lucide-react';
 
+import { env } from '@/lib/env';
+
 const DocsEmbed = () => {
-  const DOCS_URL = '/docs'; // Mintlify docs on same domain
+  const DOCS_URL = env.docsUrl;
 
   return (
     <PublicLayout>
