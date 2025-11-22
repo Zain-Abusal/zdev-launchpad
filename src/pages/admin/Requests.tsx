@@ -1,4 +1,8 @@
 import { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { Card } from '@/components/ui/card';
@@ -16,7 +20,17 @@ import { Eye } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 const AdminRequests = () => {
+  const { toast } = useToast();
   const [requests, setRequests] = useState<any[]>([]);
+  const [open, setOpen] = useState(false);
+  const [editingRequest, setEditingRequest] = useState<any>(null);
+  const [formData, setFormData] = useState({
+    full_name: '',
+    email: '',
+    project_title: '',
+    description: '',
+    status: 'new',
+  });
 
   useEffect(() => {
     fetchRequests();
@@ -27,8 +41,60 @@ const AdminRequests = () => {
       .from('project_requests')
       .select('*')
       .order('created_at', { ascending: false });
-    
     if (data) setRequests(data);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (editingRequest) {
+        const { error } = await supabase
+          .from('project_requests')
+          .update(formData)
+          .eq('id', editingRequest.id);
+        if (error) throw error;
+        toast({ title: 'Request updated successfully' });
+      } else {
+        const { error } = await supabase
+          .from('project_requests')
+          .insert([formData]);
+        if (error) throw error;
+        toast({ title: 'Request created successfully' });
+      }
+      setOpen(false);
+      resetForm();
+      fetchRequests();
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    }
+  };
+
+  const handleEdit = (request: any) => {
+    setEditingRequest(request);
+    setFormData({
+      full_name: request.full_name,
+      email: request.email,
+      project_title: request.project_title,
+      description: request.description,
+      status: request.status,
+    });
+    setOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this request?')) return;
+    const { error } = await supabase.from('project_requests').delete().eq('id', id);
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: 'Request deleted successfully' });
+      fetchRequests();
+    }
+  };
+
+  const resetForm = () => {
+    setEditingRequest(null);
+    setFormData({ full_name: '', email: '', project_title: '', description: '', status: 'new' });
   };
 
   const getStatusColor = (status: string) => {
@@ -55,6 +121,66 @@ const AdminRequests = () => {
         </motion.div>
 
         <Card>
+          <div className="flex justify-end p-4">
+            <Dialog open={open} onOpenChange={(isOpen) => {
+              setOpen(isOpen);
+              if (!isOpen) resetForm();
+            }}>
+              <DialogTrigger asChild>
+                <Button>
+                  Add Request
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-xl">
+                <DialogHeader>
+                  <DialogTitle>{editingRequest ? 'Edit Request' : 'Add New Request'}</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <Input
+                    placeholder="Full Name"
+                    value={formData.full_name}
+                    onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                    required
+                  />
+                  <Input
+                    placeholder="Email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    required
+                  />
+                  <Input
+                    placeholder="Project Title"
+                    value={formData.project_title}
+                    onChange={(e) => setFormData({ ...formData, project_title: e.target.value })}
+                    required
+                  />
+                  <Textarea
+                    placeholder="Description"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    rows={4}
+                  />
+                  <select
+                    value={formData.status}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                    className="w-full px-3 py-2 rounded border"
+                  >
+                    <option value="new">New</option>
+                    <option value="in_review">In Review</option>
+                    <option value="closed">Closed</option>
+                  </select>
+                  <div className="flex gap-2 pt-4">
+                    <Button type="submit" className="flex-1">
+                      {editingRequest ? 'Update' : 'Create'} Request
+                    </Button>
+                    <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                      Cancel
+                    </Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
           <Table>
             <TableHeader>
               <TableRow>
@@ -83,9 +209,14 @@ const AdminRequests = () => {
                     {new Date(request.created_at).toLocaleDateString()}
                   </TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="sm">
-                      <Eye className="h-4 w-4" />
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button variant="ghost" size="sm" onClick={() => handleEdit(request)}>
+                        Edit
+                      </Button>
+                      <Button variant="destructive" size="sm" onClick={() => handleDelete(request.id)}>
+                        Delete
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}

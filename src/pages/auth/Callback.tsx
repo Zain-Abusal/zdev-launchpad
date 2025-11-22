@@ -1,54 +1,56 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Callback = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [loading, setLoading] = useState(true);
+  const [searchParams] = useSearchParams();
+  const { user } = useAuth();
 
   useEffect(() => {
-    const handle = async () => {
+    const handleAuthCallback = async () => {
       try {
-        // Parse and store session from the URL after OAuth redirect (Supabase v2+)
-        const { data, error } = await supabase.auth.exchangeCodeForSession(window.location.href);
-
-        if (error) throw error;
-
-        // Ensure user is available
-        const { data: userData } = await supabase.auth.getUser();
-        const user = userData.user;
-
-        if (!user) {
-          toast({ title: 'Authentication failed', description: 'No user found after OAuth redirect', variant: 'destructive' });
-          navigate('/auth/sign-in');
+        // Handle the auth callback
+        const { data, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Auth callback error:', error);
+          navigate('/auth?error=callback_failed');
           return;
         }
-
-        const adminEmail = import.meta.env.VITE_ZDEV_ADMIN_EMAIL || 'admin@example.com';
-        const isAdmin = user.email === adminEmail;
-
-        toast({ title: 'Signed in', description: `Welcome back, ${user.email}` });
-
-        navigate(isAdmin ? '/admin' : '/client');
-      } catch (err: any) {
-        toast({ title: 'Auth error', description: err?.message || 'Unable to complete authentication', variant: 'destructive' });
-        navigate('/auth/sign-in');
-      } finally {
-        setLoading(false);
+        if (data?.session) {
+          // Get redirect URL from state or default to dashboard
+          const redirectTo = searchParams.get('redirect_to') || '/dashboard';
+          navigate(redirectTo, { replace: true });
+        } else {
+          // No session found, redirect to auth
+          navigate('/auth', { replace: true });
+        }
+      } catch (error) {
+        console.error('Auth callback error:', error);
+        navigate('/auth?error=callback_failed', { replace: true });
       }
     };
-
-    handle();
-  }, [navigate, toast]);
+    // Only handle callback if user is not already authenticated
+    if (!user) {
+      handleAuthCallback();
+    } else {
+      // User is already authenticated, redirect to dashboard
+      navigate('/dashboard', { replace: true });
+    }
+  }, [navigate, searchParams, user]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <p className="text-lg font-medium">Completing sign in...</p>
-        <p className="text-sm text-muted-foreground mt-2">Please wait while we finish authenticating your account.</p>
-        {loading && <div className="mt-4">⏳</div>}
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <div className="text-center space-y-4">
+        <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+          Completing sign in...
+        </h2>
+        <p className="text-gray-600 dark:text-gray-400">
+          Please wait while we redirect you.
+        </p>
       </div>
     </div>
   );

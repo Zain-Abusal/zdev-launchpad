@@ -20,6 +20,12 @@ import { supabase } from '@/integrations/supabase/client';
 const AdminLicenses = () => {
   const { toast } = useToast();
   const [licenses, setLicenses] = useState<any[]>([]);
+  const [open, setOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    license_key: '',
+    status: 'active',
+    max_domains: 1,
+  });
   const [selectedLicense, setSelectedLicense] = useState<any>(null);
   const [domains, setDomains] = useState<any[]>([]);
 
@@ -38,8 +44,34 @@ const AdminLicenses = () => {
         )
       `)
       .order('created_at', { ascending: false });
-    
     if (data) setLicenses(data);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const { error } = await supabase
+        .from('licenses')
+        .insert([formData]);
+      if (error) throw error;
+      toast({ title: 'License created successfully' });
+      setOpen(false);
+      setFormData({ license_key: '', status: 'active', max_domains: 1 });
+      fetchLicenses();
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this license?')) return;
+    const { error } = await supabase.from('licenses').delete().eq('id', id);
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: 'License deleted successfully' });
+      fetchLicenses();
+    }
   };
 
   const fetchDomains = async (licenseId: string) => {
@@ -108,6 +140,11 @@ const AdminLicenses = () => {
         </motion.div>
 
         <Card>
+          <div className="flex justify-end p-4">
+            <Button onClick={() => setOpen(true)}>
+              Add License
+            </Button>
+          </div>
           <Table>
             <TableHeader>
               <TableRow>
@@ -159,6 +196,13 @@ const AdminLicenses = () => {
                           <Unlock className="h-4 w-4" />
                         )}
                       </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDelete(license.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -172,6 +216,45 @@ const AdminLicenses = () => {
             </div>
           )}
         </Card>
+
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent className="max-w-xl">
+            <DialogHeader>
+              <DialogTitle>Add New License</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <input
+                type="text"
+                placeholder="License Key"
+                value={formData.license_key}
+                onChange={(e) => setFormData({ ...formData, license_key: e.target.value })}
+                required
+                className="w-full px-3 py-2 rounded border"
+              />
+              <input
+                type="number"
+                placeholder="Max Domains"
+                value={formData.max_domains}
+                onChange={(e) => setFormData({ ...formData, max_domains: Number(e.target.value) })}
+                min={1}
+                className="w-full px-3 py-2 rounded border"
+              />
+              <select
+                value={formData.status}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                className="w-full px-3 py-2 rounded border"
+              >
+                <option value="active">Active</option>
+                <option value="locked">Locked</option>
+                <option value="expired">Expired</option>
+              </select>
+              <div className="flex gap-2 pt-4">
+                <Button type="submit" className="flex-1">Create License</Button>
+                <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
 
         <Dialog open={!!selectedLicense} onOpenChange={() => setSelectedLicense(null)}>
           <DialogContent className="max-w-3xl">

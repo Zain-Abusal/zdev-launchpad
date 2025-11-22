@@ -1,4 +1,8 @@
 import { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { Card } from '@/components/ui/card';
@@ -16,7 +20,15 @@ import { Edit, Trash2, Plus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 const AdminBlog = () => {
+  const { toast } = useToast();
   const [posts, setPosts] = useState<any[]>([]);
+  const [open, setOpen] = useState(false);
+  const [editingPost, setEditingPost] = useState<any>(null);
+  const [formData, setFormData] = useState({
+    title: '',
+    content: '',
+    published: false,
+  });
 
   useEffect(() => {
     fetchPosts();
@@ -27,8 +39,58 @@ const AdminBlog = () => {
       .from('blog_posts')
       .select('*')
       .order('created_at', { ascending: false });
-    
     if (data) setPosts(data);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (editingPost) {
+        const { error } = await supabase
+          .from('blog_posts')
+          .update(formData)
+          .eq('id', editingPost.id);
+        if (error) throw error;
+        toast({ title: 'Post updated successfully' });
+      } else {
+        const { error } = await supabase
+          .from('blog_posts')
+          .insert([formData]);
+        if (error) throw error;
+        toast({ title: 'Post created successfully' });
+      }
+      setOpen(false);
+      resetForm();
+      fetchPosts();
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    }
+  };
+
+  const handleEdit = (post: any) => {
+    setEditingPost(post);
+    setFormData({
+      title: post.title,
+      content: post.content,
+      published: post.published,
+    });
+    setOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this post?')) return;
+    const { error } = await supabase.from('blog_posts').delete().eq('id', id);
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: 'Post deleted successfully' });
+      fetchPosts();
+    }
+  };
+
+  const resetForm = () => {
+    setEditingPost(null);
+    setFormData({ title: '', content: '', published: false });
   };
 
   return (
@@ -46,10 +108,58 @@ const AdminBlog = () => {
               Create and manage blog posts
             </p>
           </div>
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            New Post
-          </Button>
+          <Dialog open={open} onOpenChange={(isOpen) => {
+            setOpen(isOpen);
+            if (!isOpen) resetForm();
+          }}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                New Post
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-xl">
+              <DialogHeader>
+                <DialogTitle>{editingPost ? 'Edit Post' : 'Add New Post'}</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <Input
+                    placeholder="Title"
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    required
+                  />
+                </div>
+                <div>
+                  <Textarea
+                    placeholder="Content"
+                    value={formData.content}
+                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                    required
+                    rows={5}
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="published"
+                    checked={formData.published}
+                    onChange={(e) => setFormData({ ...formData, published: e.target.checked })}
+                  />
+                  <label htmlFor="published">Published</label>
+                </div>
+                <div className="flex gap-2 pt-4">
+                  <Button type="submit" className="flex-1">
+                    {editingPost ? 'Update' : 'Create'} Post
+                  </Button>
+                  <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
         </motion.div>
 
         <Card>
@@ -76,10 +186,10 @@ const AdminBlog = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" onClick={() => handleEdit(post)}>
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" onClick={() => handleDelete(post.id)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
