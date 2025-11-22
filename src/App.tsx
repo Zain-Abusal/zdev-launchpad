@@ -3,24 +3,97 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
+import { ThemeProvider } from "@/contexts/ThemeContext";
+import { AuthProvider } from "@/contexts/AuthContext";
+
+// Public Pages
+import Home from "./pages/Home";
+import Services from "./pages/Services";
+import Portfolio from "./pages/Portfolio";
+import Demos from "./pages/Demos";
+import Blog from "./pages/Blog";
+import Contact from "./pages/Contact";
+import GetStarted from "./pages/GetStarted";
+import DocsEmbed from "./pages/DocsEmbed";
+
+// Auth Pages
+import SignIn from "./pages/auth/SignIn";
+import SignUp from "./pages/auth/SignUp";
+
+// Client Pages
+import ClientDashboard from "./pages/client/Dashboard";
+import ClientProjects from "./pages/client/Projects";
+import ClientProjectDetail from "./pages/client/ProjectDetail";
+import ClientProfile from "./pages/client/Profile";
+import ClientBilling from "./pages/client/Billing";
+
+// Admin Pages
+import AdminDashboard from "./pages/admin/Dashboard";
+import AdminClients from "./pages/admin/Clients";
+import AdminProjects from "./pages/admin/AdminProjects";
+import AdminBlog from "./pages/admin/AdminBlog";
+import AdminRequests from "./pages/admin/Requests";
+import AdminSettings from "./pages/admin/Settings";
+
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<Home />} />
+              <Route path="/services" element={<Services />} />
+              <Route path="/portfolio" element={<Portfolio />} />
+              <Route path="/portfolio/:id" element={<Portfolio />} />
+              <Route path="/demos" element={<Demos />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:slug" element={<Blog />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/get-started" element={<GetStarted />} />
+              <Route path="/docs-embed" element={<DocsEmbed />} />
+
+              {/* Auth Routes */}
+              <Route path="/auth/sign-in" element={<SignIn />} />
+              <Route path="/auth/sign-up" element={<SignUp />} />
+
+              {/* Client Routes */}
+              <Route path="/client" element={<ClientDashboard />} />
+              <Route path="/client/projects" element={<ClientProjects />} />
+              <Route path="/client/projects/:id" element={<ClientProjectDetail />} />
+              <Route path="/client/profile" element={<ClientProfile />} />
+              <Route path="/client/billing" element={<ClientBilling />} />
+
+              {/* Admin Routes */}
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/clients" element={<AdminClients />} />
+              <Route path="/admin/projects" element={<AdminProjects />} />
+              <Route path="/admin/blog" element={<AdminBlog />} />
+              <Route path="/admin/requests" element={<AdminRequests />} />
+              <Route path="/admin/settings" element={<AdminSettings />} />
+              
+              {/* Placeholder routes for remaining admin pages */}
+              <Route path="/admin/portfolio" element={<AdminDashboard />} />
+              <Route path="/admin/demos" element={<AdminDashboard />} />
+              <Route path="/admin/docs-links" element={<AdminDashboard />} />
+              <Route path="/admin/licenses" element={<AdminDashboard />} />
+              <Route path="/admin/support" element={<AdminDashboard />} />
+              <Route path="/admin/editor" element={<AdminDashboard />} />
+
+              {/* 404 */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
