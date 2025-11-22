@@ -68,22 +68,22 @@ const Home = () => {
             className="relative"
           >
             <div className="grid grid-cols-2 gap-4">
-              <Card className="p-6 hover-lift">
-                <Code2 className="h-8 w-8 text-primary mb-3" />
-                <p className="text-sm font-medium">Modern Tech Stack</p>
-              </Card>
-              <Card className="p-6 hover-lift mt-8">
-                <Layout className="h-8 w-8 text-primary mb-3" />
-                <p className="text-sm font-medium">Responsive Design</p>
-              </Card>
-              <Card className="p-6 hover-lift">
-                <Terminal className="h-8 w-8 text-primary mb-3" />
-                <p className="text-sm font-medium">Custom Solutions</p>
-              </Card>
-              <Card className="p-6 hover-lift mt-8">
-                <Check className="h-8 w-8 text-primary mb-3" />
-                <p className="text-sm font-medium">Quality Assured</p>
-              </Card>
+                <Card className="p-6 hover-lift hover-scale">
+                  <Code2 className="h-8 w-8 text-primary mb-3" />
+                  <p className="text-sm font-medium">Modern Tech Stack</p>
+                </Card>
+                <Card className="p-6 hover-lift hover-scale mt-8">
+                  <Layout className="h-8 w-8 text-primary mb-3" />
+                  <p className="text-sm font-medium">Responsive Design</p>
+                </Card>
+                <Card className="p-6 hover-lift hover-scale">
+                  <Terminal className="h-8 w-8 text-primary mb-3" />
+                  <p className="text-sm font-medium">Custom Solutions</p>
+                </Card>
+                <Card className="p-6 hover-lift hover-scale mt-8">
+                  <Check className="h-8 w-8 text-primary mb-3" />
+                  <p className="text-sm font-medium">Quality Assured</p>
+                </Card>
             </div>
           </motion.div>
         </div>
@@ -162,8 +162,9 @@ const Home = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="bg-primary text-primary-foreground py-20">
-        <div className="container mx-auto px-4 text-center">
+      <section className="gradient-primary text-primary-foreground py-20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:20px_20px]" />
+        <div className="container mx-auto px-4 text-center relative">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -177,7 +178,7 @@ const Home = () => {
               Let's discuss how I can help bring your vision to life
             </p>
             <Link to="/get-started">
-              <Button size="lg" variant="secondary" className="group">
+              <Button size="lg" variant="secondary" className="group hover-scale">
                 Get Started Today
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Button>

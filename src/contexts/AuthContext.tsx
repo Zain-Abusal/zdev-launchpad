@@ -17,7 +17,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const ADMIN_EMAIL = "admin@example.com"; // From env in real app
+  const ADMIN_EMAIL = import.meta.env.VITE_ZDEV_ADMIN_EMAIL || "admin@example.com";
 
   useEffect(() => {
     // Set up auth state listener first

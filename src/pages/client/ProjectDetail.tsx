@@ -91,13 +91,25 @@ const ClientProjectDetail = () => {
             <CardHeader>
               <CardTitle>Documentation</CardTitle>
             </CardHeader>
-            <CardContent>
-              <Link to="/docs-embed">
-                <Button variant="outline" className="w-full justify-start">
-                  <FileText className="mr-2 h-4 w-4" />
-                  Open Project Documentation
-                </Button>
-              </Link>
+            <CardContent className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Access comprehensive documentation for this project
+              </p>
+              {project.demo_url && project.demo_url.includes('/docs') ? (
+                <a href={project.demo_url} target="_blank" rel="noopener noreferrer">
+                  <Button variant="outline" className="w-full justify-start">
+                    <FileText className="mr-2 h-4 w-4" />
+                    Open Custom Documentation
+                  </Button>
+                </a>
+              ) : (
+                <Link to="/docs-embed">
+                  <Button variant="outline" className="w-full justify-start">
+                    <FileText className="mr-2 h-4 w-4" />
+                    Open General Documentation
+                  </Button>
+                </Link>
+              )}
             </CardContent>
           </Card>
 

@@ -34,6 +34,12 @@ import AdminProjects from "./pages/admin/AdminProjects";
 import AdminBlog from "./pages/admin/AdminBlog";
 import AdminRequests from "./pages/admin/Requests";
 import AdminSettings from "./pages/admin/Settings";
+import AdminPortfolio from "./pages/admin/Portfolio";
+import AdminDemos from "./pages/admin/Demos";
+import AdminDocsLinks from "./pages/admin/DocsLinks";
+import AdminLicenses from "./pages/admin/Licenses";
+import AdminSupport from "./pages/admin/Support";
+import AdminCodeEditor from "./pages/admin/CodeEditor";
 
 import NotFound from "./pages/NotFound";
 
@@ -79,13 +85,13 @@ const App = () => (
               <Route path="/admin/requests" element={<AdminRequests />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
               
-              {/* Placeholder routes for remaining admin pages */}
-              <Route path="/admin/portfolio" element={<AdminDashboard />} />
-              <Route path="/admin/demos" element={<AdminDashboard />} />
-              <Route path="/admin/docs-links" element={<AdminDashboard />} />
-              <Route path="/admin/licenses" element={<AdminDashboard />} />
-              <Route path="/admin/support" element={<AdminDashboard />} />
-              <Route path="/admin/editor" element={<AdminDashboard />} />
+              {/* All admin pages */}
+              <Route path="/admin/portfolio" element={<AdminPortfolio />} />
+              <Route path="/admin/demos" element={<AdminDemos />} />
+              <Route path="/admin/docs-links" element={<AdminDocsLinks />} />
+              <Route path="/admin/licenses" element={<AdminLicenses />} />
+              <Route path="/admin/support" element={<AdminSupport />} />
+              <Route path="/admin/editor" element={<AdminCodeEditor />} />
 
               {/* 404 */}
               <Route path="*" element={<NotFound />} />
