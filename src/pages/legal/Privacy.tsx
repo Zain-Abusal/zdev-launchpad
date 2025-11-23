@@ -134,8 +134,8 @@ const Privacy = () => {
                 <p>
                   If you have any questions about this Privacy Policy, please contact us at:
                   <br />
-                  <a href="mailto:privacy@zdev.dev" className="text-primary hover:underline">
-                    privacy@zdev.dev
+                  <a href="mailto:zainabusal113@gmail.com" className="text-primary hover:underline">
+                    zainabusal113@gmail.com
                   </a>
                 </p>
               </section>

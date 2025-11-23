@@ -47,6 +47,7 @@ import AdminSupport from "./pages/admin/Support";
 import AdminCodeEditor from "./pages/admin/CodeEditor";
 import AdminLogs from "./pages/admin/Logs";
 import AdminAnnouncement from "./pages/admin/Announcement";
+import MarketingDashboard from "./pages/admin/MarketingDashboard";
 
 import NotFound from "./pages/NotFound";
 
@@ -95,6 +96,7 @@ const App = () => (
               <Route path="/admin/blog" element={<AdminBlog />} />
               <Route path="/admin/requests" element={<AdminRequests />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
+              <Route path="/admin/marketing" element={<MarketingDashboard />} />
               
               {/* All admin pages */}
               <Route path="/admin/portfolio" element={<AdminPortfolio />} />

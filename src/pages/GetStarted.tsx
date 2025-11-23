@@ -42,6 +42,41 @@ const GetStarted = () => {
 
       if (error) throw error;
 
+      // Send notification email via Resend
+      try {
+        const { sendResendEmail } = await import('@/integrations/resend');
+        await sendResendEmail({
+          to: 'zainabusal113@gmail.com',
+          subject: 'New Project Request Submitted',
+          html: `
+            <div style="background:#f8fafc;padding:32px 0;font-family:sans-serif;">
+              <div style="max-width:480px;margin:0 auto;background:#fff;border-radius:12px;box-shadow:0 2px 8px #0001;padding:32px;">
+                <div style="text-align:center;margin-bottom:24px;">
+                  <img src='https://zdev-launchpad.vercel.app/favicon.ico' alt='zdev logo' style='width:48px;height:48px;border-radius:8px;margin-bottom:8px;' />
+                  <h2 style="margin:0;font-size:1.5rem;color:#222;font-weight:700;">New Project Request</h2>
+                </div>
+                <div style="font-size:1rem;color:#333;line-height:1.6;">
+                  <p><strong>Name:</strong> ${formData.fullName}</p>
+                  <p><strong>Email:</strong> ${formData.email}</p>
+                  <p><strong>Phone:</strong> ${formData.phone}</p>
+                  <p><strong>Project Title:</strong> ${formData.projectTitle}</p>
+                  <p><strong>Project Type:</strong> ${formData.projectType}</p>
+                  <p><strong>Description:</strong><br/>${formData.description}</p>
+                  <p><strong>Budget:</strong> ${formData.budget}</p>
+                  <p><strong>Timeframe:</strong> ${formData.timeframe}</p>
+                </div>
+                <div style="margin-top:32px;text-align:center;color:#888;font-size:0.9rem;">
+                  <hr style="margin:24px 0;border:none;border-top:1px solid #eee;" />
+                  <span>zdev – Freelance Web & Software Developer</span>
+                </div>
+              </div>
+            </div>
+          `
+        });
+      } catch (err) {
+        // Silently ignore email errors
+      }
+
       toast({
         title: 'Request submitted!',
         description: "I'll review your project and get back to you soon.",

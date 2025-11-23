@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { sendResendEmail } from '@/integrations/resend';
 
 interface AuthContextType {
   user: User | null;
@@ -21,10 +22,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     // Set up auth state listener first
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    let lastUserEmail: string | null = null;
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      // Send thank you email only on login
+      if (event === 'SIGNED_IN' && session?.user?.email && session.user.email !== lastUserEmail) {
+        lastUserEmail = session.user.email;
+        try {
+          await sendResendEmail({
+            to: session.user.email,
+            subject: 'Thank you for logging in!',
+            html: `<h2>Welcome back to zdev!</h2><p>Thank you for logging in. If you need help, reply to this email.</p>`
+          });
+        } catch (err) {
+          // Silently ignore email errors
+        }
+      }
     });
 
     // Then check for existing session
