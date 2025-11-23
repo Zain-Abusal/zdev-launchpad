@@ -39,6 +39,7 @@ export const AdminSidebar = () => {
     { path: '/admin/licenses', label: 'Licenses', icon: Key },
     { path: '/admin/requests', label: 'Requests', icon: Inbox },
     { path: '/admin/support', label: 'Support', icon: Inbox },
+    { path: '/admin/marketing', label: 'Marketing', icon: Megaphone },
     { path: '/admin/announcement', label: 'Announcement', icon: Megaphone },
     { path: '/admin/logs', label: 'Activity Logs', icon: Activity },
     { path: '/admin/editor', label: 'Code Editor', icon: Code },
