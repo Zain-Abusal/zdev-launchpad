@@ -51,7 +51,11 @@ const AdminProjects = () => {
       } else {
         const { error } = await supabase
           .from('projects')
-          .insert([formData]);
+          .insert([{
+            ...formData,
+            short_description: formData.description,
+            full_description: formData.description
+          }]);
         if (error) throw error;
         toast({ title: 'Project created successfully' });
       }

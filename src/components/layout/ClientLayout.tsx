@@ -2,6 +2,7 @@ import { Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ClientSidebar } from './ClientSidebar';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ClientLayoutProps {
   children: React.ReactNode;
@@ -14,14 +15,15 @@ export const ClientLayout = ({ children }: ClientLayoutProps) => {
 
   useEffect(() => {
     const fetchAnnouncement = async () => {
-      const { data } = await import('@/integrations/supabase/client').then(m => m.supabase)
-        .from('announcements')
+      const { data } = await supabase
+        .from('header_announcements')
         .select('*')
+        .eq('enabled', true)
         .order('created_at', { ascending: false })
         .limit(1);
       if (data && data[0]) {
         setAnnouncement(data[0].text);
-        setActive(data[0].active);
+        setActive(data[0].enabled);
       }
     };
     fetchAnnouncement();

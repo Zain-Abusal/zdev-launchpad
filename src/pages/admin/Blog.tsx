@@ -2,12 +2,16 @@ import { useEffect, useState } from 'react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2, Plus, Tag } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Edit, Trash2, Plus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 const AdminBlog = () => {
+  const { toast } = useToast();
   const [posts, setPosts] = useState<any[]>([]);
-  const [newPost, setNewPost] = useState({ title: '', content: '', tags: '', status: 'draft' });
+  const [newPost, setNewPost] = useState({ title: '', content: '', tags: '', excerpt: '', status: 'draft' });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -25,92 +29,145 @@ const AdminBlog = () => {
   };
 
   const handleAddPost = async () => {
+    if (!newPost.title || !newPost.content) {
+      toast({ title: 'Error', description: 'Title and content are required', variant: 'destructive' });
+      return;
+    }
+    
     setLoading(true);
     const slug = newPost.title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '');
-    await supabase
+    
+    const { error } = await supabase
       .from('blog_posts')
       .insert({
         title: newPost.title,
         content: newPost.content,
-        tags: newPost.tags.split(',').map(t => t.trim()),
+        excerpt: newPost.excerpt || newPost.content.substring(0, 150),
+        tags: newPost.tags.split(',').map(t => t.trim()).filter(t => t),
         slug,
-        published: newPost.status === 'published',
-        created_at: new Date().toISOString()
+        published: newPost.status === 'published'
       });
-    setNewPost({ title: '', content: '', tags: '', status: 'draft' });
-    fetchPosts();
+    
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: 'Success', description: 'Blog post created!' });
+      setNewPost({ title: '', content: '', tags: '', excerpt: '', status: 'draft' });
+      fetchPosts();
+    }
     setLoading(false);
   };
 
   const handleDeletePost = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this post?')) return;
+    
     setLoading(true);
-    await supabase.from('blog_posts').delete().eq('id', id);
-    fetchPosts();
+    const { error } = await supabase.from('blog_posts').delete().eq('id', id);
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: 'Success', description: 'Post deleted!' });
+      fetchPosts();
+    }
     setLoading(false);
   };
 
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <Card>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Blog Manager</h1>
+            <p className="text-muted-foreground">Create and manage blog posts</p>
+          </div>
+        </div>
+
+        <Card className="hover-lift">
           <CardHeader>
-            <CardTitle>Blog Manager</CardTitle>
+            <CardTitle>Write New Post</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Input
+              placeholder="Post Title"
+              value={newPost.title}
+              onChange={e => setNewPost({ ...newPost, title: e.target.value })}
+            />
+            <Textarea
+              placeholder="Excerpt (optional, will auto-generate from content)"
+              value={newPost.excerpt}
+              onChange={e => setNewPost({ ...newPost, excerpt: e.target.value })}
+              rows={2}
+            />
+            <Textarea
+              placeholder="Post Content (HTML supported)"
+              value={newPost.content}
+              onChange={e => setNewPost({ ...newPost, content: e.target.value })}
+              rows={10}
+            />
+            <Input
+              placeholder="Tags (comma separated)"
+              value={newPost.tags}
+              onChange={e => setNewPost({ ...newPost, tags: e.target.value })}
+            />
+            <select
+              value={newPost.status}
+              onChange={e => setNewPost({ ...newPost, status: e.target.value })}
+              className="w-full px-3 py-2 rounded border bg-background"
+            >
+              <option value="draft">Draft</option>
+              <option value="published">Published</option>
+            </select>
+            <Button onClick={handleAddPost} disabled={loading}>
+              <Plus className="mr-2 h-4 w-4" />
+              {loading ? 'Saving...' : 'Create Post'}
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="hover-lift">
+          <CardHeader>
+            <CardTitle>All Posts ({posts.length})</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="mb-6">
-              <h4 className="font-semibold mb-2">Write New Post</h4>
-              <input
-                type="text"
-                placeholder="Title"
-                className="border rounded px-2 py-1 mb-2 w-full"
-                value={newPost.title}
-                onChange={e => setNewPost({ ...newPost, title: e.target.value })}
-              />
-              <textarea
-                placeholder="Content"
-                className="border rounded px-2 py-1 mb-2 w-full"
-                value={newPost.content}
-                onChange={e => setNewPost({ ...newPost, content: e.target.value })}
-              />
-              <input
-                type="text"
-                placeholder="Tags (comma separated)"
-                className="border rounded px-2 py-1 mb-2 w-full"
-                value={newPost.tags}
-                onChange={e => setNewPost({ ...newPost, tags: e.target.value })}
-              />
-              <select
-                value={newPost.status}
-                onChange={e => setNewPost({ ...newPost, status: e.target.value })}
-                className="border rounded px-2 py-1 mb-2 w-full"
-              >
-                <option value="draft">Draft</option>
-                <option value="published">Published</option>
-                <option value="unpublished">Unpublished</option>
-              </select>
-              <Button size="sm" onClick={handleAddPost} disabled={loading || !newPost.title || !newPost.content}>
-                <Plus className="mr-2 h-4 w-4" />Save Post
-              </Button>
-            </div>
-            <h4 className="font-semibold mb-2">All Posts</h4>
             {loading ? (
-              <div>Loading...</div>
+              <div className="text-center py-8">Loading...</div>
             ) : posts.length ? (
-              <ul className="text-sm">
+              <div className="space-y-4">
                 {posts.map(post => (
-                  <li key={post.id} className="mb-4 border-b pb-2">
-                    <div className="font-semibold">{post.title}</div>
-                    <div>{post.status}</div>
-                    <div>Tags: {post.tags.join(', ')}</div>
-                    <Button size="sm" variant="outline" className="mr-2"><Edit className="h-4 w-4" />Edit</Button>
-                    <Button size="sm" variant="destructive" onClick={() => handleDeletePost(post.id)}><Trash2 className="h-4 w-4" />Delete</Button>
-                  </li>
+                  <div key={post.id} className="p-4 border rounded-lg space-y-2">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-lg">{post.title}</h4>
+                        <p className="text-sm text-muted-foreground line-clamp-2">{post.excerpt}</p>
+                        <div className="flex items-center gap-2 mt-2">
+                          {post.tags?.map((tag: string) => (
+                            <span key={tag} className="text-xs px-2 py-1 bg-secondary rounded">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {new Date(post.created_at).toLocaleDateString()} • {post.published ? 'Published' : 'Draft'}
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button size="sm" variant="destructive" onClick={() => handleDeletePost(post.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
                 ))}
-              </ul>
-            ) : <p className="text-muted-foreground">No posts found.</p>}
+              </div>
+            ) : (
+              <p className="text-center text-muted-foreground py-8">No posts yet. Create your first one!</p>
+            )}
           </CardContent>
         </Card>
       </div>
