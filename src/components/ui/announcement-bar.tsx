@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { Button } from './button';
 import { supabase } from '@/integrations/supabase/client';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export const AnnouncementBar = () => {
   const [announcement, setAnnouncement] = useState<any>(null);
@@ -39,33 +40,41 @@ export const AnnouncementBar = () => {
   if (!announcement || !isVisible) return null;
 
   return (
-    <div className="bg-primary text-primary-foreground py-2 px-4">
-      <div className="container mx-auto flex items-center justify-between gap-4">
-        <p className="text-sm flex-1 text-center">
-          {announcement.text}
-          {announcement.link_url && announcement.link_text && (
-            <>
-              {' '}
-              <a 
-                href={announcement.link_url} 
-                className="underline font-semibold hover:opacity-80 transition-opacity"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {announcement.link_text}
-              </a>
-            </>
-          )}
-        </p>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleDismiss}
-          className="h-6 w-6 shrink-0 hover:bg-primary-foreground/20"
-        >
-          <X className="h-4 w-4" />
-        </Button>
-      </div>
-    </div>
+    <AnimatePresence>
+      <motion.div
+        initial={{ height: 0, opacity: 0 }}
+        animate={{ height: 'auto', opacity: 1 }}
+        exit={{ height: 0, opacity: 0 }}
+        transition={{ duration: 0.3 }}
+        className="bg-gradient-primary text-primary-foreground py-2 px-4 overflow-hidden"
+      >
+        <div className="container mx-auto flex items-center justify-between gap-4">
+          <p className="text-sm flex-1 text-center">
+            {announcement.text}
+            {announcement.link_url && announcement.link_text && (
+              <>
+                {' '}
+                <a 
+                  href={announcement.link_url} 
+                  className="underline font-semibold hover:opacity-80 transition-opacity"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {announcement.link_text}
+                </a>
+              </>
+            )}
+          </p>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleDismiss}
+            className="h-6 w-6 shrink-0 hover:bg-primary-foreground/20"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      </motion.div>
+    </AnimatePresence>
   );
 };

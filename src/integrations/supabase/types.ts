@@ -516,38 +516,47 @@ export type Database = {
       portfolio: {
         Row: {
           created_at: string | null
+          demo_link: string | null
           demo_url: string | null
           featured: boolean | null
           full_description: string | null
           id: string
           image_url: string | null
+          images: string[] | null
           short_description: string | null
           tech_stack: string[] | null
           title: string
+          type: string | null
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
+          demo_link?: string | null
           demo_url?: string | null
           featured?: boolean | null
           full_description?: string | null
           id?: string
           image_url?: string | null
+          images?: string[] | null
           short_description?: string | null
           tech_stack?: string[] | null
           title: string
+          type?: string | null
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
+          demo_link?: string | null
           demo_url?: string | null
           featured?: boolean | null
           full_description?: string | null
           id?: string
           image_url?: string | null
+          images?: string[] | null
           short_description?: string | null
           tech_stack?: string[] | null
           title?: string
+          type?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -800,7 +809,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      log_activity: {
+        Args: { p_action: string; p_details?: string; p_user_id: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

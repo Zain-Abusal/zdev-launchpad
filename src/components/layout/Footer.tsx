@@ -5,7 +5,7 @@ export const Footer = () => {
   return (
     <footer className="border-t border-border bg-background">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
           <div>
             <h3 className="font-bold text-lg mb-4">zdev</h3>
             <p className="text-sm text-muted-foreground">
@@ -28,6 +28,15 @@ export const Footer = () => {
               <li><Link to="/blog" className="text-muted-foreground hover:text-foreground transition-colors">Blog</Link></li>
               <li><Link to="/docs-embed" className="text-muted-foreground hover:text-foreground transition-colors">Documentation</Link></li>
               <li><Link to="/contact" className="text-muted-foreground hover:text-foreground transition-colors">Contact</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-semibold mb-4">Legal</h4>
+            <ul className="space-y-2 text-sm">
+              <li><Link to="/legal/terms" className="text-muted-foreground hover:text-foreground transition-colors">Terms of Service</Link></li>
+              <li><Link to="/legal/privacy" className="text-muted-foreground hover:text-foreground transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/legal/gdpr" className="text-muted-foreground hover:text-foreground transition-colors">GDPR</Link></li>
             </ul>
           </div>
 

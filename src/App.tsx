@@ -16,7 +16,9 @@ import BlogPost from "./pages/blog/[slug]";
 import Contact from "./pages/Contact";
 import GetStarted from "./pages/GetStarted";
 import DocsEmbed from "./pages/DocsEmbed";
-import Legal from "./pages/Legal";
+import Terms from "./pages/legal/Terms";
+import Privacy from "./pages/legal/Privacy";
+import GDPR from "./pages/legal/GDPR";
 
 // Auth Pages
 import SignIn from "./pages/auth/SignIn";
@@ -44,6 +46,7 @@ import AdminLicenses from "./pages/admin/Licenses";
 import AdminSupport from "./pages/admin/Support";
 import AdminCodeEditor from "./pages/admin/CodeEditor";
 import AdminLogs from "./pages/admin/Logs";
+import AdminAnnouncement from "./pages/admin/Announcement";
 
 import NotFound from "./pages/NotFound";
 
@@ -69,7 +72,9 @@ const App = () => (
               <Route path="/contact" element={<Contact />} />
               <Route path="/get-started" element={<GetStarted />} />
               <Route path="/docs-embed" element={<DocsEmbed />} />
-              <Route path="/legal" element={<Legal />} />
+              <Route path="/legal/terms" element={<Terms />} />
+              <Route path="/legal/privacy" element={<Privacy />} />
+              <Route path="/legal/gdpr" element={<GDPR />} />
 
               {/* Auth Routes */}
               <Route path="/auth/sign-in" element={<SignIn />} />
@@ -99,6 +104,7 @@ const App = () => (
               <Route path="/admin/support" element={<AdminSupport />} />
               <Route path="/admin/editor" element={<AdminCodeEditor />} />
               <Route path="/admin/logs" element={<AdminLogs />} />
+              <Route path="/admin/announcement" element={<AdminAnnouncement />} />
               <Route path="/admin/blog" element={<AdminBlog />} />
 
               {/* 404 */}

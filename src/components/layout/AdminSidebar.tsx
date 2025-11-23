@@ -14,6 +14,8 @@ import {
   LogOut,
   Moon,
   Sun,
+  Megaphone,
+  Activity,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
@@ -37,6 +39,8 @@ export const AdminSidebar = () => {
     { path: '/admin/licenses', label: 'Licenses', icon: Key },
     { path: '/admin/requests', label: 'Requests', icon: Inbox },
     { path: '/admin/support', label: 'Support', icon: Inbox },
+    { path: '/admin/announcement', label: 'Announcement', icon: Megaphone },
+    { path: '/admin/logs', label: 'Activity Logs', icon: Activity },
     { path: '/admin/editor', label: 'Code Editor', icon: Code },
     { path: '/admin/settings', label: 'Settings', icon: Settings },
   ];
