@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const RESEND_API_KEY = import.meta.env.VITE_RESEND_API_KEY;
+const RESEND_API_KEY = import.meta.env.RESEND_API_KEY || import.meta.env.VITE_RESEND_API_KEY;
 const RESEND_API_URL = 'https://api.resend.com/emails';
 
 export async function sendResendEmail({ to, subject, html }: { to: string; subject: string; html: string }) {

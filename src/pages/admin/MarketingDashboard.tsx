@@ -6,7 +6,8 @@ import { sendResendEmail } from '@/integrations/resend';
 
 const MarketingDashboard = () => {
   const [subject, setSubject] = useState('');
-  const [body, setBody] = useState('');
+  const [bodyHtml, setBodyHtml] = useState('');
+  const [bodyText, setBodyText] = useState('');
   const [recipients, setRecipients] = useState(''); // comma-separated emails
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState('');
@@ -17,7 +18,7 @@ const MarketingDashboard = () => {
     const emails = recipients.split(',').map(e => e.trim()).filter(Boolean);
     try {
       for (const to of emails) {
-        await sendResendEmail({ to, subject, html: body });
+        await sendResendEmail({ to, subject, html: bodyHtml || `<pre>${bodyText}</pre>` });
       }
       setResult('Emails sent successfully!');
     } catch (err: any) {
@@ -28,37 +29,58 @@ const MarketingDashboard = () => {
 
   return (
     <AdminLayout>
-      <div className="max-w-xl mx-auto space-y-6">
+      <div className="max-w-2xl mx-auto space-y-8">
         <Card>
           <CardHeader>
             <CardTitle>Send Marketing Email</CardTitle>
+            <p className="text-muted-foreground mt-2">Send a marketing email to your clients. You can use plain text or HTML for rich formatting.</p>
           </CardHeader>
           <CardContent>
-            <input
-              type="text"
-              className="border rounded px-2 py-1 mb-2 w-full"
-              placeholder="Subject"
-              value={subject}
-              onChange={e => setSubject(e.target.value)}
-            />
-            <textarea
-              className="border rounded px-2 py-1 mb-2 w-full"
-              placeholder="Email HTML body"
-              rows={6}
-              value={body}
-              onChange={e => setBody(e.target.value)}
-            />
-            <input
-              type="text"
-              className="border rounded px-2 py-1 mb-2 w-full"
-              placeholder="Recipients (comma-separated emails)"
-              value={recipients}
-              onChange={e => setRecipients(e.target.value)}
-            />
-            <Button onClick={handleSend} disabled={sending}>
+            <div className="mb-4">
+              <label className="block font-medium mb-1">Subject</label>
+              <input
+                type="text"
+                className="border rounded px-2 py-1 w-full"
+                placeholder="Subject"
+                value={subject}
+                onChange={e => setSubject(e.target.value)}
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block font-medium mb-1">Plain Text Content</label>
+              <textarea
+                className="border rounded px-2 py-1 w-full"
+                placeholder="Plain text content"
+                rows={4}
+                value={bodyText}
+                onChange={e => setBodyText(e.target.value)}
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block font-medium mb-1">HTML Content (optional)</label>
+              <textarea
+                className="border rounded px-2 py-1 w-full"
+                placeholder="HTML content for rich emails"
+                rows={6}
+                value={bodyHtml}
+                onChange={e => setBodyHtml(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground mt-1">If provided, HTML will be used. Otherwise, plain text will be sent.</p>
+            </div>
+            <div className="mb-4">
+              <label className="block font-medium mb-1">Recipients</label>
+              <input
+                type="text"
+                className="border rounded px-2 py-1 w-full"
+                placeholder="Recipients (comma-separated emails)"
+                value={recipients}
+                onChange={e => setRecipients(e.target.value)}
+              />
+            </div>
+            <Button onClick={handleSend} disabled={sending} className="w-full">
               {sending ? 'Sending...' : 'Send Email'}
             </Button>
-            {result && <div className="mt-2 text-sm">{result}</div>}
+            {result && <div className="mt-4 text-sm text-center">{result}</div>}
           </CardContent>
         </Card>
       </div>
