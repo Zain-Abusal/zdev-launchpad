@@ -14,6 +14,89 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_logs: {
+        Row: {
+          action: string | null
+          created_at: string | null
+          details: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          action?: string | null
+          created_at?: string | null
+          details?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string | null
+          created_at?: string | null
+          details?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      announcements: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          id: string
+          text: string
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          id?: string
+          text: string
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          id?: string
+          text?: string
+        }
+        Relationships: []
+      }
+      billing: {
+        Row: {
+          amount: number | null
+          client_id: string | null
+          created_at: string | null
+          currency: string | null
+          id: string
+          invoice_url: string | null
+          status: string | null
+        }
+        Insert: {
+          amount?: number | null
+          client_id?: string | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          invoice_url?: string | null
+          status?: string | null
+        }
+        Update: {
+          amount?: number | null
+          client_id?: string | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          invoice_url?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_posts: {
         Row: {
           content: string
@@ -215,6 +298,45 @@ export type Database = {
         }
         Relationships: []
       }
+      downloads: {
+        Row: {
+          client_id: string | null
+          downloaded_at: string | null
+          file_url: string | null
+          id: string
+          project_id: string | null
+        }
+        Insert: {
+          client_id?: string | null
+          downloaded_at?: string | null
+          file_url?: string | null
+          id?: string
+          project_id?: string | null
+        }
+        Update: {
+          client_id?: string | null
+          downloaded_at?: string | null
+          file_url?: string | null
+          id?: string
+          project_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "downloads_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "downloads_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       header_announcements: {
         Row: {
           created_at: string | null
@@ -391,6 +513,45 @@ export type Database = {
           },
         ]
       }
+      portfolio: {
+        Row: {
+          created_at: string | null
+          demo_url: string | null
+          featured: boolean | null
+          full_description: string | null
+          id: string
+          image_url: string | null
+          short_description: string | null
+          tech_stack: string[] | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          demo_url?: string | null
+          featured?: boolean | null
+          full_description?: string | null
+          id?: string
+          image_url?: string | null
+          short_description?: string | null
+          tech_stack?: string[] | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          demo_url?: string | null
+          featured?: boolean | null
+          full_description?: string | null
+          id?: string
+          image_url?: string | null
+          short_description?: string | null
+          tech_stack?: string[] | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -498,6 +659,141 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      settings: {
+        Row: {
+          created_at: string | null
+          deployment: string | null
+          favicon_url: string | null
+          id: string
+          logo_url: string | null
+          site_title: string | null
+          smtp_host: string | null
+          smtp_pass: string | null
+          smtp_user: string | null
+          theme: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          deployment?: string | null
+          favicon_url?: string | null
+          id?: string
+          logo_url?: string | null
+          site_title?: string | null
+          smtp_host?: string | null
+          smtp_pass?: string | null
+          smtp_user?: string | null
+          theme?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          deployment?: string | null
+          favicon_url?: string | null
+          id?: string
+          logo_url?: string | null
+          site_title?: string | null
+          smtp_host?: string | null
+          smtp_pass?: string | null
+          smtp_user?: string | null
+          theme?: string | null
+        }
+        Relationships: []
+      }
+      support_tickets: {
+        Row: {
+          client_id: string | null
+          created_at: string | null
+          id: string
+          status: string | null
+          subject: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string | null
+          id?: string
+          status?: string | null
+          subject?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string | null
+          id?: string
+          status?: string | null
+          subject?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_tickets_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ticket_attachments: {
+        Row: {
+          file_url: string | null
+          id: string
+          ticket_id: string | null
+          uploaded_at: string | null
+        }
+        Insert: {
+          file_url?: string | null
+          id?: string
+          ticket_id?: string | null
+          uploaded_at?: string | null
+        }
+        Update: {
+          file_url?: string | null
+          id?: string
+          ticket_id?: string | null
+          uploaded_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_attachments_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ticket_messages: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string | null
+          sender_id: string | null
+          ticket_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message?: string | null
+          sender_id?: string | null
+          ticket_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string | null
+          sender_id?: string | null
+          ticket_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

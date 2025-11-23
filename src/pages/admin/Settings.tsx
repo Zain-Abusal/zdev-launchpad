@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,11 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { supabase } from '@/integrations/supabase/client';
 
 const AdminSettings = () => {
-  // Supabase CRUD logic for settings
-  import { useEffect, useState } from 'react';
-  import { supabase } from '@/integrations/supabase/client';
   const [settings, setSettings] = useState({ site_title: '', logo_url: '', favicon_url: '', theme: 'system', smtp_host: '', smtp_user: '', smtp_pass: '', deployment: '' });
   const [loading, setLoading] = useState(false);
 

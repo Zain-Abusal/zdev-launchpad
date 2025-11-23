@@ -12,9 +12,11 @@ import Services from "./pages/Services";
 import Portfolio from "./pages/Portfolio";
 import Demos from "./pages/Demos";
 import Blog from "./pages/Blog";
+import BlogPost from "./pages/blog/[slug]";
 import Contact from "./pages/Contact";
 import GetStarted from "./pages/GetStarted";
 import DocsEmbed from "./pages/DocsEmbed";
+import Legal from "./pages/Legal";
 
 // Auth Pages
 import SignIn from "./pages/auth/SignIn";
@@ -32,7 +34,7 @@ import ClientBilling from "./pages/client/Billing";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminClients from "./pages/admin/Clients";
 import AdminProjects from "./pages/admin/AdminProjects";
-import AdminBlog from "./pages/admin/AdminBlog";
+import AdminBlog from "./pages/admin/Blog";
 import AdminRequests from "./pages/admin/Requests";
 import AdminSettings from "./pages/admin/Settings";
 import AdminPortfolio from "./pages/admin/Portfolio";
@@ -41,6 +43,7 @@ import AdminDocsLinks from "./pages/admin/DocsLinks";
 import AdminLicenses from "./pages/admin/Licenses";
 import AdminSupport from "./pages/admin/Support";
 import AdminCodeEditor from "./pages/admin/CodeEditor";
+import AdminLogs from "./pages/admin/Logs";
 
 import NotFound from "./pages/NotFound";
 
@@ -62,10 +65,11 @@ const App = () => (
               <Route path="/portfolio/:id" element={<Portfolio />} />
               <Route path="/demos" element={<Demos />} />
               <Route path="/blog" element={<Blog />} />
-              <Route path="/blog/:slug" element={<Blog />} />
+              <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/get-started" element={<GetStarted />} />
               <Route path="/docs-embed" element={<DocsEmbed />} />
+              <Route path="/legal" element={<Legal />} />
 
               {/* Auth Routes */}
               <Route path="/auth/sign-in" element={<SignIn />} />
@@ -94,6 +98,8 @@ const App = () => (
               <Route path="/admin/licenses" element={<AdminLicenses />} />
               <Route path="/admin/support" element={<AdminSupport />} />
               <Route path="/admin/editor" element={<AdminCodeEditor />} />
+              <Route path="/admin/logs" element={<AdminLogs />} />
+              <Route path="/admin/blog" element={<AdminBlog />} />
 
               {/* 404 */}
               <Route path="*" element={<NotFound />} />

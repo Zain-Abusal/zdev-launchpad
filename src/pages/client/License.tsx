@@ -23,7 +23,7 @@ const ClientLicense = () => {
     const { data } = await supabase
       .from('licenses')
       .select('*')
-      .eq('client_id', user.id)
+      .limit(1)
       .single();
     if (data) {
       setLicense(data);
@@ -34,7 +34,7 @@ const ClientLicense = () => {
 
   const fetchDomains = async (licenseId: string) => {
     const { data } = await supabase
-      .from('domains')
+      .from('license_domains')
       .select('*')
       .eq('license_id', licenseId);
     if (data) setDomains(data);
@@ -51,52 +51,58 @@ const ClientLicense = () => {
   return (
     <ClientLayout>
       <div className="space-y-6">
-        <Card>
+        <Card className="hover-lift">
           <CardHeader>
             <CardTitle><Key className="inline mr-2" />License Key</CardTitle>
           </CardHeader>
           <CardContent>
             {license ? (
               <div>
-                <code className="text-sm bg-muted px-3 py-2 rounded block mb-2">{license.key}</code>
-                <p className="text-xs text-muted-foreground mb-2">Tier: {license.tier}</p>
-                <p className="text-xs text-muted-foreground mb-2">Status: {license.status}</p>
-                <p className="text-xs text-muted-foreground mb-2">Usage: {license.usage_count}</p>
-                <p className="text-xs text-muted-foreground mb-2">Suspended Reason: {license.suspended_reason || 'None'}</p>
-                <Button size="sm" variant="outline" className="mt-2">Renew/Change Tier</Button>
+                <code className="text-sm bg-muted px-3 py-2 rounded block mb-2">{license.license_key}</code>
+                <p className="text-xs text-muted-foreground mb-2">Status: <Badge variant={license.status === 'active' ? 'default' : 'destructive'}>{license.status}</Badge></p>
+                <p className="text-xs text-muted-foreground mb-2">Max Domains: {license.max_domains}</p>
               </div>
             ) : <p className="text-muted-foreground">No license found.</p>}
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover-lift">
           <CardHeader>
-            <CardTitle><Globe className="inline mr-2" />Allowed Domains</CardTitle>
+            <CardTitle><Globe className="inline mr-2" />Associated Domains</CardTitle>
           </CardHeader>
           <CardContent>
             {domains.length ? (
-              <ul className="text-sm">
+              <ul className="text-sm space-y-2">
                 {domains.map((domain: any) => (
-                  <li key={domain.id} className="mb-1">{domain.domain} - {domain.activated ? 'Active' : 'Inactive'}</li>
+                  <li key={domain.id} className="p-2 border rounded">
+                    <div className="font-medium">{domain.domain}</div>
+                    <div className="text-xs text-muted-foreground">
+                      Last seen: {new Date(domain.last_seen).toLocaleDateString()}
+                    </div>
+                  </li>
                 ))}
               </ul>
-            ) : <p className="text-muted-foreground">No domains found.</p>}
-            <Button size="sm" variant="outline" className="mt-2">Request Domain Change</Button>
+            ) : <p className="text-muted-foreground">No domains registered yet.</p>}
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover-lift">
           <CardHeader>
-            <CardTitle><RefreshCw className="inline mr-2" />License Logs</CardTitle>
+            <CardTitle><RefreshCw className="inline mr-2" />License Activity</CardTitle>
           </CardHeader>
           <CardContent>
             {logs.length ? (
-              <ul className="text-sm">
+              <ul className="text-sm space-y-2">
                 {logs.map((log: any) => (
-                  <li key={log.id} className="mb-2">{log.event}: {log.details} <span className="text-xs text-muted-foreground">({log.created_at})</span></li>
+                  <li key={log.id} className="p-2 border-b">
+                    <div>{log.domain}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {new Date(log.created_at).toLocaleString()}
+                    </div>
+                  </li>
                 ))}
               </ul>
-            ) : <p className="text-muted-foreground">No license logs found.</p>}
+            ) : <p className="text-muted-foreground">No activity logs found.</p>}
           </CardContent>
         </Card>
       </div>
