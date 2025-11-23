@@ -8,6 +8,35 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 
 const AdminSettings = () => {
+  // Supabase CRUD logic for settings
+  import { useEffect, useState } from 'react';
+  import { supabase } from '@/integrations/supabase/client';
+  const [settings, setSettings] = useState({ site_title: '', logo_url: '', favicon_url: '', theme: 'system', smtp_host: '', smtp_user: '', smtp_pass: '', deployment: '' });
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const fetchSettings = async () => {
+    setLoading(true);
+    const { data } = await supabase
+      .from('settings')
+      .select('*')
+      .limit(1);
+    if (data && data[0]) setSettings(data[0]);
+    setLoading(false);
+  };
+
+  const handleSave = async () => {
+    setLoading(true);
+    await supabase
+      .from('settings')
+      .upsert(settings);
+    fetchSettings();
+    setLoading(false);
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-6 max-w-3xl">
@@ -24,70 +53,68 @@ const AdminSettings = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Branding</CardTitle>
+            <CardTitle>Site Settings</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="siteName">Site Name</Label>
-              <Input id="siteName" defaultValue="zdev" />
-            </div>
-
-            <div>
-              <Label htmlFor="tagline">Tagline</Label>
-              <Input
-                id="tagline"
-                defaultValue="Custom websites, systems, and Python tools."
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="supportEmail">Support Email</Label>
-              <Input id="supportEmail" type="email" defaultValue="support@zdev.dev" />
-            </div>
-
-            <Button>Save Branding</Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Announcement Bar</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="announcementEnabled">Show Announcement Bar</Label>
-              <Switch id="announcementEnabled" />
-            </div>
-
-            <div>
-              <Label htmlFor="announcementText">Announcement Text</Label>
-              <Textarea
-                id="announcementText"
-                placeholder="Enter announcement message..."
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="announcementLink">Link (Optional)</Label>
-              <Input id="announcementLink" placeholder="https://..." />
-            </div>
-
-            <Button>Save Announcement</Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Theme Settings</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label>Default Theme</Label>
-              <div className="flex gap-4 mt-2">
-                <Button variant="outline">Light</Button>
-                <Button variant="default">Dark</Button>
-              </div>
-            </div>
+          <CardContent>
+            <input
+              type="text"
+              className="border rounded px-2 py-1 mb-2 w-full"
+              value={settings.site_title}
+              onChange={e => setSettings({ ...settings, site_title: e.target.value })}
+              placeholder="Site Title"
+            />
+            <input
+              type="text"
+              className="border rounded px-2 py-1 mb-2 w-full"
+              value={settings.logo_url}
+              onChange={e => setSettings({ ...settings, logo_url: e.target.value })}
+              placeholder="Logo URL"
+            />
+            <input
+              type="text"
+              className="border rounded px-2 py-1 mb-2 w-full"
+              value={settings.favicon_url}
+              onChange={e => setSettings({ ...settings, favicon_url: e.target.value })}
+              placeholder="Favicon URL"
+            />
+            <select
+              value={settings.theme}
+              onChange={e => setSettings({ ...settings, theme: e.target.value })}
+              className="border rounded px-2 py-1 mb-2 w-full"
+            >
+              <option value="system">System</option>
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+            <input
+              type="text"
+              className="border rounded px-2 py-1 mb-2 w-full"
+              value={settings.smtp_host}
+              onChange={e => setSettings({ ...settings, smtp_host: e.target.value })}
+              placeholder="SMTP Host"
+            />
+            <input
+              type="text"
+              className="border rounded px-2 py-1 mb-2 w-full"
+              value={settings.smtp_user}
+              onChange={e => setSettings({ ...settings, smtp_user: e.target.value })}
+              placeholder="SMTP User"
+            />
+            <input
+              type="password"
+              className="border rounded px-2 py-1 mb-2 w-full"
+              value={settings.smtp_pass}
+              onChange={e => setSettings({ ...settings, smtp_pass: e.target.value })}
+              placeholder="SMTP Password"
+            />
+            <input
+              type="text"
+              className="border rounded px-2 py-1 mb-2 w-full"
+              value={settings.deployment}
+              onChange={e => setSettings({ ...settings, deployment: e.target.value })}
+              placeholder="Deployment Settings"
+            />
+            <Button size="sm" onClick={handleSave} disabled={loading}>Save Settings</Button>
           </CardContent>
         </Card>
       </div>

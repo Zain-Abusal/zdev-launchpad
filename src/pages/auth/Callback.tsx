@@ -21,7 +21,7 @@ const Callback = () => {
         }
         if (data?.session) {
           // Get redirect URL from state or default to dashboard
-          const redirectTo = searchParams.get('redirect_to') || '/dashboard';
+          const redirectTo = searchParams.get('redirect_to') || '/';
           navigate(redirectTo, { replace: true });
         } else {
           // No session found, redirect to auth
@@ -36,8 +36,8 @@ const Callback = () => {
     if (!user) {
       handleAuthCallback();
     } else {
-      // User is already authenticated, redirect to dashboard
-      navigate('/dashboard', { replace: true });
+      // User is already authenticated, redirect to root
+      navigate('/', { replace: true });
     }
   }, [navigate, searchParams, user]);
 

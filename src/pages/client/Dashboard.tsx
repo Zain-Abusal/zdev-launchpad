@@ -4,7 +4,7 @@ import { ClientLayout } from '@/components/layout/ClientLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { FolderKanban, Activity, Bell, Link as LinkIcon } from 'lucide-react';
+import { FolderKanban, Activity, Bell, Link as LinkIcon, Key, Globe, Download, FileText, MessageSquare, CreditCard } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,18 +12,72 @@ import { supabase } from '@/integrations/supabase/client';
 const ClientDashboard = () => {
   const { user } = useAuth();
   const [projects, setProjects] = useState<any[]>([]);
+  const [license, setLicense] = useState<any>(null);
+  const [domains, setDomains] = useState<any[]>([]);
+  const [downloads, setDownloads] = useState<any[]>([]);
+  const [supportTickets, setSupportTickets] = useState<any[]>([]);
+  const [billing, setBilling] = useState<any[]>([]);
 
   useEffect(() => {
-    if (user) fetchProjects();
+    if (user) {
+      fetchProjects();
+      fetchLicense();
+      fetchDomains();
+      fetchDownloads();
+      fetchSupportTickets();
+      fetchBilling();
+    }
   }, [user]);
 
   const fetchProjects = async () => {
     const { data } = await supabase
       .from('projects')
       .select('*')
+      .eq('client_id', user.id)
       .limit(5);
-    
     if (data) setProjects(data);
+  };
+
+  const fetchLicense = async () => {
+    const { data } = await supabase
+      .from('licenses')
+      .select('*')
+      .eq('client_id', user.id)
+      .single();
+    if (data) setLicense(data);
+  };
+
+  const fetchDomains = async () => {
+    if (!license) return;
+    const { data } = await supabase
+      .from('domains')
+      .select('*')
+      .eq('license_id', license.id);
+    if (data) setDomains(data);
+  };
+
+  const fetchDownloads = async () => {
+    const { data } = await supabase
+      .from('downloads')
+      .select('*')
+      .eq('project_id', projects.length ? projects[0].id : null);
+    if (data) setDownloads(data);
+  };
+
+  const fetchSupportTickets = async () => {
+    const { data } = await supabase
+      .from('support_tickets')
+      .select('*')
+      .eq('client_id', user.id);
+    if (data) setSupportTickets(data);
+  };
+
+  const fetchBilling = async () => {
+    const { data } = await supabase
+      .from('billing')
+      .select('*')
+      .eq('client_id', user.id);
+    if (data) setBilling(data);
   };
 
   const stats = [
@@ -75,6 +129,105 @@ const ClientDashboard = () => {
             );
           })}
         </div>
+
+        {/* License Key & Domains */}
+        <div className="grid md:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle><Key className="inline mr-2" />License Key</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {license ? (
+                <div>
+                  <code className="text-sm bg-muted px-3 py-2 rounded block mb-2">{license.key}</code>
+                  <p className="text-xs text-muted-foreground mb-2">Tier: {license.tier}</p>
+                  <p className="text-xs text-muted-foreground mb-2">Status: {license.status}</p>
+                  <p className="text-xs text-muted-foreground mb-2">Usage: {license.usage_count}</p>
+                </div>
+              ) : <p className="text-muted-foreground">No license found.</p>}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle><Globe className="inline mr-2" />Domain Activation</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {domains.length ? (
+                <ul className="text-sm">
+                  {domains.map((domain: any) => (
+                    <li key={domain.id} className="mb-1">{domain.domain} - {domain.activated ? 'Active' : 'Inactive'}</li>
+                  ))}
+                </ul>
+              ) : <p className="text-muted-foreground">No domains found.</p>}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Files & Downloads */}
+        <Card>
+          <CardHeader>
+            <CardTitle><Download className="inline mr-2" />Files & Downloads</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {downloads.length ? (
+              <ul className="text-sm">
+                {downloads.map((file: any) => (
+                  <li key={file.id} className="mb-2">
+                    <a href={file.file_url} target="_blank" rel="noopener noreferrer" className="text-primary underline">
+                      {file.description || file.file_url}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            ) : <p className="text-muted-foreground">No downloads available.</p>}
+          </CardContent>
+        </Card>
+
+        {/* Documentation Link */}
+        <Card>
+          <CardHeader>
+            <CardTitle><FileText className="inline mr-2" />Documentation</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <a href="/docs-embed" className="text-primary underline">View Documentation</a>
+          </CardContent>
+        </Card>
+
+        {/* Support Tickets */}
+        <Card>
+          <CardHeader>
+            <CardTitle><MessageSquare className="inline mr-2" />Support Tickets</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {supportTickets.length ? (
+              <ul className="text-sm">
+                {supportTickets.map((ticket: any) => (
+                  <li key={ticket.id} className="mb-2">
+                    <span className="font-semibold">{ticket.subject}</span> - {ticket.status}
+                  </li>
+                ))}
+              </ul>
+            ) : <p className="text-muted-foreground">No support tickets found.</p>}
+          </CardContent>
+        </Card>
+
+        {/* Billing History */}
+        <Card>
+          <CardHeader>
+            <CardTitle><CreditCard className="inline mr-2" />Billing History</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {billing.length ? (
+              <ul className="text-sm">
+                {billing.map((bill: any) => (
+                  <li key={bill.id} className="mb-2">
+                    {bill.description} - ${bill.amount}
+                  </li>
+                ))}
+              </ul>
+            ) : <p className="text-muted-foreground">No billing history found.</p>}
+          </CardContent>
+        </Card>
 
         <div className="grid md:grid-cols-2 gap-6">
           {/* Projects */}

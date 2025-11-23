@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Terminal } from '@/components/ui/terminal';
 import { Button } from '@/components/ui/button';
 import { Download, File, Folder } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -9,6 +11,9 @@ import { useToast } from '@/hooks/use-toast';
 const AdminCodeEditor = () => {
   const { toast } = useToast();
   const [selectedFile, setSelectedFile] = useState('index.tsx');
+  const [fileContent, setFileContent] = useState('');
+  const [editMode, setEditMode] = useState(false);
+  const [editorType, setEditorType] = useState<'custom' | 'vscode'>('custom');
 
   const fileTree = [
     { name: 'src', type: 'folder', children: [
@@ -21,17 +26,11 @@ const AdminCodeEditor = () => {
     { name: 'package.json', type: 'file' },
   ];
 
-  const sampleCode = `import React from 'react';
-import { createRoot } from 'react-dom/client';
-import App from './App';
-import './index.css';
-
-const root = createRoot(document.getElementById('root')!);
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);`;
+  useEffect(() => {
+    // Simulate loading file content from Supabase
+    setFileContent(`// ${selectedFile}\n\nconsole.log('Hello from ${selectedFile}');`);
+    setEditMode(false);
+  }, [selectedFile]);
 
   const handleExport = () => {
     toast({
@@ -93,28 +92,65 @@ root.render(
             </div>
           </Card>
 
-          {/* Code Editor */}
+          {/* Code Editor with toggle */}
           <Card className="lg:col-span-3 overflow-hidden flex flex-col">
-            <div className="border-b border-border p-3 bg-muted/30">
-              <div className="flex items-center gap-2">
-                <File className="h-4 w-4" />
-                <span className="font-mono text-sm">{selectedFile}</span>
-              </div>
+            <div className="border-b border-border p-3 bg-muted/30 flex items-center gap-2">
+              <File className="h-4 w-4" />
+              <span className="font-mono text-sm">{selectedFile}</span>
+              <Button size="sm" variant={editorType === 'custom' ? 'default' : 'outline'} onClick={() => setEditorType('custom')} className="ml-auto">
+                Custom Editor
+              </Button>
+              <Button size="sm" variant={editorType === 'vscode' ? 'default' : 'outline'} onClick={() => setEditorType('vscode')}>
+                VSCode.dev
+              </Button>
+              {editorType === 'custom' && (
+                <Button size="sm" variant="outline" onClick={() => setEditMode((e) => !e)}>
+                  {editMode ? 'View' : 'Edit'}
+                </Button>
+              )}
             </div>
             <div className="flex-1 overflow-auto p-4">
-              <pre className="font-mono text-sm">
-                <code>{sampleCode}</code>
-              </pre>
+              {editorType === 'custom' ? (
+                editMode ? (
+                  <textarea
+                    className="font-mono text-sm w-full h-64 rounded border p-2"
+                    value={fileContent}
+                    onChange={(e) => setFileContent(e.target.value)}
+                  />
+                ) : (
+                  <pre className="font-mono text-sm">
+                    <code>{fileContent}</code>
+                  </pre>
+                )
+              ) : (
+                <iframe
+                  src="https://vscode.dev/"
+                  title="VSCode.dev"
+                  className="w-full h-96 border rounded"
+                  style={{ minHeight: '400px' }}
+                />
+              )}
             </div>
+            {editorType === 'custom' && editMode && (
+              <div className="p-3 border-t border-border flex justify-end">
+                <Button size="sm" onClick={() => setEditMode(false)}>
+                  Save
+                </Button>
+              </div>
+            )}
           </Card>
         </div>
 
         <Card className="p-4 bg-muted/30">
           <p className="text-sm text-muted-foreground">
-            <strong>Note:</strong> This is a read-only code viewer. Direct editing is not available in this interface.
-            Use the export function to download the project and edit locally.
+            <strong>Note:</strong> This is a demo code editor. Saving will update the local state only. For real file sync, connect to Supabase or your backend.
           </p>
         </Card>
+
+        <div className="mt-8">
+          <h3 className="font-semibold mb-3 text-sm">Terminal</h3>
+          <Terminal />
+        </div>
       </div>
     </AdminLayout>
   );
