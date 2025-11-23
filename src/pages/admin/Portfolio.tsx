@@ -24,6 +24,8 @@ const AdminPortfolio = () => {
     short_description: '',
     full_description: '',
     image_url: '',
+    images: [],
+    newImage: '',
     demo_url: '',
     tech_stack: '',
     featured: false,
@@ -48,7 +50,9 @@ const AdminPortfolio = () => {
     const projectData = {
       ...formData,
       tech_stack: formData.tech_stack.split(',').map(t => t.trim()).filter(Boolean),
+      images: formData.images.filter((img: string) => img.trim() !== ''),
     };
+    delete projectData.newImage;
 
     try {
       if (editingProject) {
@@ -84,6 +88,8 @@ const AdminPortfolio = () => {
       short_description: project.short_description,
       full_description: project.full_description || '',
       image_url: project.image_url || '',
+      images: Array.isArray(project.images) ? project.images : [],
+      newImage: '',
       demo_url: project.demo_url || '',
       tech_stack: project.tech_stack?.join(', ') || '',
       featured: project.featured,
@@ -112,6 +118,8 @@ const AdminPortfolio = () => {
       short_description: '',
       full_description: '',
       image_url: '',
+      images: [],
+      newImage: '',
       demo_url: '',
       tech_stack: '',
       featured: false,
@@ -192,13 +200,45 @@ const AdminPortfolio = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="image_url">Image URL</Label>
+                  <Label htmlFor="image_url">Main Image URL</Label>
                   <Input
                     id="image_url"
                     value={formData.image_url}
                     onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
                     placeholder="https://..."
                   />
+                </div>
+                <div>
+                  <Label>Additional Images</Label>
+                  <div className="flex gap-2 mb-2">
+                    <Input
+                      value={formData.newImage}
+                      onChange={e => setFormData({ ...formData, newImage: e.target.value })}
+                      placeholder="https://..."
+                    />
+                    <Button type="button" onClick={() => {
+                      if (formData.newImage.trim()) {
+                        setFormData({
+                          ...formData,
+                          images: [...formData.images, formData.newImage.trim()],
+                          newImage: '',
+                        });
+                      }
+                    }}>Add</Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {formData.images.map((img: string, idx: number) => (
+                      <div key={idx} className="flex items-center gap-1 bg-muted px-2 py-1 rounded">
+                        <span className="text-xs">{img}</span>
+                        <Button type="button" size="icon" variant="destructive" onClick={() => {
+                          setFormData({
+                            ...formData,
+                            images: formData.images.filter((_, i) => i !== idx),
+                          });
+                        }}>×</Button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 <div>

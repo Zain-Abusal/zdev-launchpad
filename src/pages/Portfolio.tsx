@@ -20,7 +20,6 @@ const Portfolio = () => {
       .select('*')
       .eq('featured', true)
       .order('created_at', { ascending: false });
-
     if (data) setProjects(data);
   };
 
@@ -69,24 +68,37 @@ const Portfolio = () => {
             >
               <Link to={`/portfolio/${project.id}`}>
                 <Card className="overflow-hidden hover-lift hover-scale h-full">
-                  {project.image_url && (
+                  {project.images && Array.isArray(project.images) && project.images.length > 0 ? (
+                    <div className="aspect-video bg-muted overflow-hidden flex flex-row gap-2">
+                      {project.images.slice(0,2).map((img: string, idx: number) => (
+                        <img 
+                          key={idx}
+                          src={img}
+                          alt={project.title}
+                          className="w-1/2 h-full object-cover rounded"
+                          onError={e => { e.currentTarget.style.display = 'none'; }}
+                        />
+                      ))}
+                    </div>
+                  ) : project.image_url ? (
                     <div className="aspect-video bg-muted overflow-hidden">
                       <img 
                         src={project.image_url} 
                         alt={project.title}
                         className="w-full h-full object-cover"
+                        onError={e => { e.currentTarget.style.display = 'none'; }}
                       />
                     </div>
-                  )}
+                  ) : null}
                   <CardHeader>
                     <div className="flex items-start justify-between gap-2 mb-2">
-                      <CardTitle className="text-lg">{project.title}</CardTitle>
-                      <Badge variant="secondary">{project.type}</Badge>
+                      <CardTitle className="text-lg">{project.title || 'Untitled'}</CardTitle>
+                      <Badge variant="secondary">{project.type || 'N/A'}</Badge>
                     </div>
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-muted-foreground">
-                      {project.short_description}
+                      {project.short_description || (project.full_description ? project.full_description.slice(0, 120) + (project.full_description.length > 120 ? '...' : '') : 'No description available.')}
                     </p>
                   </CardContent>
                 </Card>

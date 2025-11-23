@@ -10,6 +10,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Home from "./pages/Home";
 import Services from "./pages/Services";
 import Portfolio from "./pages/Portfolio";
+import PortfolioDetail from "./pages/PortfolioDetail";
 import Demos from "./pages/Demos";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/blog/[slug]";
@@ -66,7 +67,7 @@ const App = () => (
               <Route path="/" element={<Home />} />
               <Route path="/services" element={<Services />} />
               <Route path="/portfolio" element={<Portfolio />} />
-              <Route path="/portfolio/:id" element={<Portfolio />} />
+              <Route path="/portfolio/:id" element={<PortfolioDetail />} />
               <Route path="/demos" element={<Demos />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
