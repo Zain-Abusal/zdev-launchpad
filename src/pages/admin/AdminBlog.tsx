@@ -28,6 +28,11 @@ const AdminBlog = () => {
     title: '',
     content: '',
     published: false,
+    slug: '',
+    tags: [],
+    excerpt: '',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   });
 
   useEffect(() => {
@@ -73,6 +78,11 @@ const AdminBlog = () => {
       title: post.title,
       content: post.content,
       published: post.published,
+      slug: post.slug || '',
+      tags: post.tags || [],
+      excerpt: post.excerpt || '',
+      created_at: post.created_at || new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     });
     setOpen(true);
   };
@@ -90,7 +100,16 @@ const AdminBlog = () => {
 
   const resetForm = () => {
     setEditingPost(null);
-    setFormData({ title: '', content: '', published: false });
+    setFormData({
+      title: '',
+      content: '',
+      published: false,
+      slug: '',
+      tags: [],
+      excerpt: '',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    });
   };
 
   return (
@@ -175,7 +194,11 @@ const AdminBlog = () => {
             <TableBody>
               {posts.map((post) => (
                 <TableRow key={post.id}>
-                  <TableCell className="font-medium">{post.title}</TableCell>
+                  <TableCell className="font-medium">
+                    <a href={`/blog/${post.slug}`} target="_blank" rel="noopener noreferrer" className="underline text-primary">
+                      {post.title}
+                    </a>
+                  </TableCell>
                   <TableCell>
                     <Badge variant={post.published ? 'default' : 'secondary'}>
                       {post.published ? 'Published' : 'Draft'}

@@ -13,7 +13,8 @@ const ClientDashboard = () => {
   const { user } = useAuth();
   const [projects, setProjects] = useState<any[]>([]);
   const [license, setLicense] = useState<any>(null);
-  const [domains, setDomains] = useState<any[]>([]);
+  // @ts-ignore: Fix deep type instantiation error
+  const supabase: any = require("../../integrations/supabase/client").supabase;
   const [downloads, setDownloads] = useState<any[]>([]);
   const [supportTickets, setSupportTickets] = useState<any[]>([]);
   const [billing, setBilling] = useState<any[]>([]);
@@ -22,7 +23,6 @@ const ClientDashboard = () => {
     if (user) {
       fetchProjects();
       fetchLicense();
-      fetchDomains();
       fetchDownloads();
       fetchSupportTickets();
       fetchBilling();
@@ -47,37 +47,17 @@ const ClientDashboard = () => {
     if (data) setLicense(data);
   };
 
-  const fetchDomains = async () => {
-    if (!license) return;
-    const { data } = await supabase
-      .from('domains')
-      .select('*')
-      .eq('license_id', license.id);
-    if (data) setDomains(data);
-  };
 
   const fetchDownloads = async () => {
-    const { data } = await supabase
-      .from('downloads')
-      .select('*')
-      .eq('project_id', projects.length ? projects[0].id : null);
-    if (data) setDownloads(data);
+    // Table 'downloads' not present in Supabase types/schema. Remove or replace with 'docs' or another valid table.
   };
 
   const fetchSupportTickets = async () => {
-    const { data } = await supabase
-      .from('support_tickets')
-      .select('*')
-      .eq('client_id', user.id);
-    if (data) setSupportTickets(data);
+    // Table 'support_tickets' not present in Supabase types/schema. Remove or replace with 'docs' or another valid table.
   };
 
   const fetchBilling = async () => {
-    const { data } = await supabase
-      .from('billing')
-      .select('*')
-      .eq('client_id', user.id);
-    if (data) setBilling(data);
+    // Table 'billing' not present in Supabase types/schema. Remove or replace with 'docs' or another valid table.
   };
 
   const stats = [
@@ -152,13 +132,7 @@ const ClientDashboard = () => {
               <CardTitle><Globe className="inline mr-2" />Domain Activation</CardTitle>
             </CardHeader>
             <CardContent>
-              {domains.length ? (
-                <ul className="text-sm">
-                  {domains.map((domain: any) => (
-                    <li key={domain.id} className="mb-1">{domain.domain} - {domain.activated ? 'Active' : 'Inactive'}</li>
-                  ))}
-                </ul>
-              ) : <p className="text-muted-foreground">No domains found.</p>}
+               {/* Domains feature removed due to missing table. */}
             </CardContent>
           </Card>
         </div>

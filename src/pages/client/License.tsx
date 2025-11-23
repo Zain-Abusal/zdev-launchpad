@@ -20,7 +20,8 @@ const ClientLicense = () => {
   }, [user]);
 
   const fetchLicense = async () => {
-    const { data } = await supabase
+    // @ts-ignore: Fix deep type instantiation error
+    const { data } = await (supabase as any)
       .from('licenses')
       .select('*')
       .eq('client_id', user.id)

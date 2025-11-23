@@ -9,6 +9,7 @@ const logTypes = [
   { key: 'license_events', label: 'License Events', table: 'license_events' },
   { key: 'license_domains', label: 'License Domains', table: 'license_domains' },
   { key: 'chat_messages', label: 'Support Messages', table: 'chat_messages' },
+  { key: 'activity_logs', label: 'Activity Logs', table: 'activity_logs' },
 ];
 
 const AdminLogs = () => {
@@ -49,24 +50,47 @@ const AdminLogs = () => {
               {logTypes.map(log => (
                 <TabsContent key={log.key} value={log.key}>
                   {loading ? <div>Loading...</div> : (
-                    <table className="w-full text-sm border">
-                      <thead>
-                        <tr>
-                          {logs[log.key] && logs[log.key][0] && Object.keys(logs[log.key][0]).map((col: string) => (
-                            <th key={col} className="border px-2 py-1">{col}</th>
+                    log.key === 'activity_logs' ? (
+                      <table className="w-full text-sm border">
+                        <thead>
+                          <tr>
+                            <th className="border px-2 py-1">Time</th>
+                            <th className="border px-2 py-1">User</th>
+                            <th className="border px-2 py-1">Action</th>
+                            <th className="border px-2 py-1">Details</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {logs[log.key] && logs[log.key].map((row: any, i: number) => (
+                            <tr key={i}>
+                              <td className="border px-2 py-1">{row.created_at ? new Date(row.created_at).toLocaleString() : ''}</td>
+                              <td className="border px-2 py-1">{row.user_id || 'System'}</td>
+                              <td className="border px-2 py-1">{row.action}</td>
+                              <td className="border px-2 py-1">{row.details}</td>
+                            </tr>
                           ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {logs[log.key] && logs[log.key].map((row: any, i: number) => (
-                          <tr key={i}>
-                            {Object.values(row).map((val: any, j: number) => (
-                              <td key={j} className="border px-2 py-1">{String(val)}</td>
+                        </tbody>
+                      </table>
+                    ) : (
+                      <table className="w-full text-sm border">
+                        <thead>
+                          <tr>
+                            {logs[log.key] && logs[log.key][0] && Object.keys(logs[log.key][0]).map((col: string) => (
+                              <th key={col} className="border px-2 py-1">{col}</th>
                             ))}
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {logs[log.key] && logs[log.key].map((row: any, i: number) => (
+                            <tr key={i}>
+                              {Object.values(row).map((val: any, j: number) => (
+                                <td key={j} className="border px-2 py-1">{String(val)}</td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )
                   )}
                 </TabsContent>
               ))}
