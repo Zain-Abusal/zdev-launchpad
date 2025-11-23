@@ -67,11 +67,12 @@ const GetStarted = () => {
                 </div>
                 <div style="margin-top:32px;text-align:center;color:#888;font-size:0.9rem;">
                   <hr style="margin:24px 0;border:none;border-top:1px solid #eee;" />
-                  <span>zdev – Freelance Web & Software Developer</span>
+                  <span>zdev  Freelance Web & Software Developer</span>
                 </div>
               </div>
             </div>
-          `
+          `,
+          sender: formData.email,
         });
       } catch (err) {
         // Silently ignore email errors

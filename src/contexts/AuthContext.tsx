@@ -34,7 +34,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           await sendResendEmail({
             to: session.user.email,
             subject: 'Thank you for logging in!',
-            html: `<h2>Welcome back to zdev!</h2><p>Thank you for logging in. If you need help, reply to this email.</p>`
+            html: `<h2>Welcome back to zdev!</h2><p>Thank you for logging in. If you need help, reply to this email.</p>`,
+            sender: ADMIN_EMAIL,
           });
         } catch (err) {
           // Silently ignore email errors
