@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { useEffect } from "react";
 
 // Public Pages
 import Home from "./pages/Home";
@@ -37,10 +38,11 @@ import ClientBilling from "./pages/client/Billing";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminClients from "./pages/admin/Clients";
 import AdminProjects from "./pages/admin/AdminProjects";
-import AdminBlog from "./pages/admin/Blog";
+import { AdminBlog } from "./pages/admin/Blog";
 import AdminRequests from "./pages/admin/Requests";
 import AdminSettings from "./pages/admin/Settings";
 import AdminPortfolio from "./pages/admin/Portfolio";
+import AdminImageManager from "./pages/admin/ImageManager";
 import AdminDemos from "./pages/admin/Demos";
 import AdminDocsLinks from "./pages/admin/DocsLinks";
 import AdminLicenses from "./pages/admin/Licenses";
@@ -54,10 +56,34 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+
+
+import { useAuth } from '@/contexts/AuthContext';
+import { logActivity } from '@/lib/utils';
+
+const DevtoolsLogger: React.FC = () => {
+  const { user } = useAuth();
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!user) return;
+      if (e.key === 'F12') {
+        logActivity('devtools_open', 'Devtools opened via F12', user.id, user.email);
+      }
+      if ((e.ctrlKey && e.shiftKey && e.key === 'I') || (e.metaKey && e.altKey && e.key === 'I')) {
+        logActivity('devtools_open', 'Devtools opened via keybind', user.id, user.email);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [user]);
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <AuthProvider>
+        <DevtoolsLogger />
         <TooltipProvider>
           <Toaster />
           <Sonner />
@@ -101,6 +127,7 @@ const App = () => (
               
               {/* All admin pages */}
               <Route path="/admin/portfolio" element={<AdminPortfolio />} />
+              <Route path="/admin/images" element={<AdminImageManager />} />
               <Route path="/admin/demos" element={<AdminDemos />} />
               <Route path="/admin/docs-links" element={<AdminDocsLinks />} />
               <Route path="/admin/licenses" element={<AdminLicenses />} />

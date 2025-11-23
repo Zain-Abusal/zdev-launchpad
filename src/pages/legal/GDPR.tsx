@@ -99,6 +99,8 @@ const GDPR = () => {
                       <li>Usage data (how you use our services)</li>
                       <li>Project data (information about your custom development projects)</li>
                       <li>Transaction data (payment and billing information)</li>
+                      <li>User actions and system events (for security and audit purposes)</li>
+                      <li>Cloudflare Turnstile CAPTCHA status and cookies (for bot protection)</li>
                     </ul>
                   </div>
                   <div>

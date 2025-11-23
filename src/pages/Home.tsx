@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { PublicLayout } from '@/components/layout/PublicLayout';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import AnimatedCard from '@/components/ui/AnimatedCard';
+import NewsletterSignup from '@/components/ui/NewsletterSignup';
 import { Code2, Layout, Terminal, ArrowRight, Check } from 'lucide-react';
 
 const Home = () => {
@@ -33,24 +35,24 @@ const Home = () => {
 
   return (
     <PublicLayout>
-      {/* Hero Section */}
-      <section className="container mx-auto px-4 py-20 md:py-32">
+      {/* Hero Section - Modern, Even, shadcn Card */}
+      <section className="container mx-auto px-4 md:px-8 py-20 md:py-32">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-6">
+            <h1 className="text-6xl font-extrabold tracking-tight mb-6 text-primary drop-shadow-lg">
               Custom Web Solutions
-              <span className="block text-primary">Built for You</span>
+              <span className="block text-secondary">Built for You</span>
             </h1>
-            <p className="text-xl text-muted-foreground mb-8">
+            <p className="text-2xl text-muted-foreground mb-8">
               Freelance developer specializing in custom websites, web systems, and Python automation tools.
             </p>
             <div className="flex gap-4">
               <Link to="/get-started">
-                <Button size="lg" className="group">
+                <Button size="lg" className="group w-full md:w-auto">
                   Get Started
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>
@@ -61,42 +63,38 @@ const Home = () => {
             </div>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="relative"
-          >
-            <div className="grid grid-cols-2 gap-4">
-                <Card className="p-6 hover-lift hover-scale">
-                  <Code2 className="h-8 w-8 text-primary mb-3" />
-                  <p className="text-sm font-medium">Modern Tech Stack</p>
-                </Card>
-                <Card className="p-6 hover-lift hover-scale mt-8">
-                  <Layout className="h-8 w-8 text-primary mb-3" />
-                  <p className="text-sm font-medium">Responsive Design</p>
-                </Card>
-                <Card className="p-6 hover-lift hover-scale">
-                  <Terminal className="h-8 w-8 text-primary mb-3" />
-                  <p className="text-sm font-medium">Custom Solutions</p>
-                </Card>
-                <Card className="p-6 hover-lift hover-scale mt-8">
-                  <Check className="h-8 w-8 text-primary mb-3" />
-                  <p className="text-sm font-medium">Quality Assured</p>
-                </Card>
+          {/* Modern Cards - shadcn/ui Card, visually balanced */}
+          <div className="flex flex-col gap-8 items-center w-full">
+            <div className="w-full max-w-md">
+              <Card className="rounded-2xl shadow-xl bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 border-2 border-primary/10">
+                <div className="p-8 text-center">
+                  <span className="block text-3xl font-bold text-primary mb-2">Modern</span>
+                  <p className="text-base text-muted-foreground mb-2">Built with React, Tailwind, and Framer Motion.</p>
+                  <Check className="mx-auto text-primary" />
+                </div>
+              </Card>
             </div>
-          </motion.div>
+            <div className="w-full max-w-md">
+              <Card className="rounded-2xl shadow-xl bg-gradient-to-br from-pink-100 via-yellow-100 to-blue-100 border-2 border-secondary/10">
+                <div className="p-8 text-center">
+                  <span className="block text-3xl font-bold text-secondary mb-2">Fast</span>
+                  <p className="text-base text-muted-foreground mb-2">Lightning quick load times and smooth interactions.</p>
+                  <ArrowRight className="mx-auto text-secondary" />
+                </div>
+              </Card>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* What I Build */}
-      <section className="bg-muted/30 py-20">
-        <div className="container mx-auto px-4">
+      {/* What I Build - Apple.com style scroll animation */}
+      <section className="bg-gradient-to-br from-blue-50 via-pink-50 to-yellow-50 py-20">
+        <div className="container mx-auto px-4 md:px-8">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.8, type: 'spring' }}
             className="text-center mb-12"
           >
             <h2 className="text-3xl md:text-4xl font-bold mb-4">What I Build</h2>
@@ -109,16 +107,16 @@ const Home = () => {
             {services.map((service, index) => (
               <motion.div
                 key={service.title}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
+                viewport={{ once: true, amount: 0.5 }}
+                transition={{ duration: 0.8, delay: index * 0.2, type: 'spring' }}
               >
-                <Card className="p-8 h-full hover-lift hover-scale">
+                <AnimatedCard className="h-full">
                   <div className="text-primary mb-4">{service.icon}</div>
                   <h3 className="text-xl font-bold mb-3">{service.title}</h3>
                   <p className="text-muted-foreground">{service.description}</p>
-                </Card>
+                </AnimatedCard>
               </motion.div>
             ))}
           </div>
@@ -127,7 +125,7 @@ const Home = () => {
 
       {/* How It Works */}
       <section className="py-20">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 md:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -150,11 +148,11 @@ const Home = () => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
               >
-                <Card className="p-6 text-center h-full">
+                <AnimatedCard className="text-center h-full">
                   <div className="text-4xl font-bold text-primary mb-4">{step.number}</div>
                   <h3 className="text-lg font-bold mb-2">{step.title}</h3>
                   <p className="text-sm text-muted-foreground">{step.description}</p>
-                </Card>
+                </AnimatedCard>
               </motion.div>
             ))}
           </div>
@@ -162,9 +160,9 @@ const Home = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="gradient-primary text-primary-foreground py-20 relative overflow-hidden">
+      <section className="bg-gradient-to-br from-primary/80 to-secondary/80 text-primary-foreground py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:20px_20px]" />
-        <div className="container mx-auto px-4 text-center relative">
+        <div className="container mx-auto px-4 md:px-8 text-center relative">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -178,12 +176,23 @@ const Home = () => {
               Let's discuss how I can help bring your vision to life
             </p>
             <Link to="/get-started">
-              <Button size="lg" variant="secondary" className="group hover-scale">
+                <Button size="lg" variant="secondary" className="group w-full md:w-auto hover-scale">
                 Get Started Today
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Newsletter Signup Section - vibrant colors and big header */}
+      <section className="bg-gradient-to-br from-pink-100 via-yellow-50 to-blue-100 py-20">
+        <div className="container mx-auto px-4 md:px-8">
+          <div className="flex flex-col items-center gap-6">
+            <h2 className="text-4xl md:text-5xl font-extrabold text-primary mb-4 drop-shadow-lg">Join the Newsletter</h2>
+            <span className="text-lg text-primary/80 mb-2 font-medium">Sign up for updates, tips, and exclusive offers. You’ll get notified about new features and login changes.</span>
+            <NewsletterSignup />
+          </div>
         </div>
       </section>
     </PublicLayout>

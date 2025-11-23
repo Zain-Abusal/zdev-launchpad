@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { FolderKanban, Activity, Bell, Key, FileText, MessageSquare, CreditCard } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { logActivity } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 
 const ClientDashboard = () => {
@@ -16,6 +17,7 @@ const ClientDashboard = () => {
   useEffect(() => {
     if (user) {
       fetchProjects();
+      logActivity('client_panel_open', 'Client dashboard opened', user.id, user.email);
     }
   }, [user]);
 

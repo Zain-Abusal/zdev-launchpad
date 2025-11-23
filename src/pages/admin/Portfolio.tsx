@@ -12,9 +12,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { logActivity } from '@/lib/utils';
 
 const AdminPortfolio = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [projects, setProjects] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<any>(null);
@@ -99,13 +102,12 @@ const AdminPortfolio = () => {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this project?')) return;
-
     const { error } = await supabase.from('projects').delete().eq('id', id);
-    
     if (error) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } else {
       toast({ title: 'Project deleted successfully' });
+      if (user) logActivity('project_delete', `Project deleted: ${id}`, user.id, user.email);
       fetchProjects();
     }
   };

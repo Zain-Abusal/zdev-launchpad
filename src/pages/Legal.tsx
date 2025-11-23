@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import CookieBanner from '@/components/ui/CookieBanner';
 import { supabase } from '../integrations/supabase/client';
 
 const legalTypes = [
@@ -46,9 +47,30 @@ const Legal = () => {
           </div>
           <div className="prose max-w-none">
             {legal[activeTab] || 'Loading...'}
+            {activeTab === 'tos' && (
+              <>
+                <h3>Additional Terms</h3>
+                <ul>
+                  <li>User actions and system events may be logged for security and audit purposes.</li>
+                  <li>Cloudflare Turnstile CAPTCHA is used to protect sensitive actions.</li>
+                  <li>Turnstile may set cookies for bot protection and session management.</li>
+                </ul>
+              </>
+            )}
+            {activeTab === 'privacy' && (
+              <>
+                <h3>Additional Privacy Information</h3>
+                <ul>
+                  <li>We log user actions, system events, and device information for security and service improvement.</li>
+                  <li>Cloudflare Turnstile CAPTCHA is used and may set cookies to verify users and prevent abuse.</li>
+                  <li>Logged data is not shared with third parties except as required by law.</li>
+                </ul>
+              </>
+            )}
           </div>
         </CardContent>
       </Card>
+      <CookieBanner />
     </div>
   );
 };
