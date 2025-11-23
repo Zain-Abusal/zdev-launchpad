@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 const AdminBlog = () => {
   const { toast } = useToast();
   const [posts, setPosts] = useState<any[]>([]);
-  const [newPost, setNewPost] = useState({ title: '', content: '', tags: '', excerpt: '', status: 'draft' });
+  const [newPost, setNewPost] = useState({ title: '', content: '', tags: '', excerpt: '', status: 'draft', images: [], newImage: '' });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -48,14 +48,15 @@ const AdminBlog = () => {
         excerpt: newPost.excerpt || newPost.content.substring(0, 150),
         tags: newPost.tags.split(',').map(t => t.trim()).filter(t => t),
         slug,
-        published: newPost.status === 'published'
+        published: newPost.status === 'published',
+        images: newPost.images.filter((img: string) => img.trim() !== ''),
       });
     
     if (error) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } else {
       toast({ title: 'Success', description: 'Blog post created!' });
-      setNewPost({ title: '', content: '', tags: '', excerpt: '', status: 'draft' });
+      setNewPost({ title: '', content: '', tags: '', excerpt: '', status: 'draft', images: [], newImage: '' });
       fetchPosts();
     }
     setLoading(false);
@@ -112,6 +113,38 @@ const AdminBlog = () => {
               value={newPost.tags}
               onChange={e => setNewPost({ ...newPost, tags: e.target.value })}
             />
+            <div>
+              <label className="block mb-1 text-sm font-medium">Images (URLs)</label>
+              <div className="flex gap-2 mb-2">
+                <Input
+                  value={newPost.newImage}
+                  onChange={e => setNewPost({ ...newPost, newImage: e.target.value })}
+                  placeholder="https://..."
+                />
+                <Button type="button" onClick={() => {
+                  if (newPost.newImage.trim()) {
+                    setNewPost({
+                      ...newPost,
+                      images: [...newPost.images, newPost.newImage.trim()],
+                      newImage: '',
+                    });
+                  }
+                }}>Add</Button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {newPost.images.map((img: string, idx: number) => (
+                  <div key={idx} className="flex items-center gap-1 bg-muted px-2 py-1 rounded">
+                    <span className="text-xs">{img}</span>
+                    <Button type="button" size="icon" variant="destructive" onClick={() => {
+                      setNewPost({
+                        ...newPost,
+                        images: newPost.images.filter((_, i) => i !== idx),
+                      });
+                    }}>×</Button>
+                  </div>
+                ))}
+              </div>
+            </div>
             <select
               value={newPost.status}
               onChange={e => setNewPost({ ...newPost, status: e.target.value })}
