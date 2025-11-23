@@ -23,14 +23,7 @@ const AdminProjects = () => {
     description: '',
     image_url: '',
     demo_url: '',
-    documentation_url: '',
     featured: false,
-    short_description: '',
-    tech_stack: [],
-    full_description: '',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    id: undefined,
   });
 
   useEffect(() => {
@@ -78,14 +71,7 @@ const AdminProjects = () => {
       description: project.description || '',
       image_url: project.image_url || '',
       demo_url: project.demo_url || '',
-      documentation_url: project.documentation_url || '',
       featured: project.featured,
-      short_description: project.short_description || '',
-      tech_stack: project.tech_stack || [],
-      full_description: project.full_description || '',
-      created_at: project.created_at || new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      id: project.id,
     });
     setOpen(true);
   };
@@ -109,14 +95,7 @@ const AdminProjects = () => {
       description: '',
       image_url: '',
       demo_url: '',
-      documentation_url: '',
       featured: false,
-      short_description: '',
-      tech_stack: [],
-      full_description: '',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      id: undefined,
     });
   };
 
@@ -179,11 +158,6 @@ const AdminProjects = () => {
                   placeholder="Demo URL"
                   value={formData.demo_url}
                   onChange={(e) => setFormData({ ...formData, demo_url: e.target.value })}
-                />
-                <Input
-                  placeholder="Documentation URL"
-                  value={formData.documentation_url}
-                  onChange={(e) => setFormData({ ...formData, documentation_url: e.target.value })}
                 />
                 <div className="flex items-center gap-2">
                   <input
@@ -268,9 +242,6 @@ const AdminProjects = () => {
                 )}
                 {viewProject.demo_url && (
                   <a href={viewProject.demo_url} target="_blank" rel="noopener noreferrer" className="text-primary underline">View Demo</a>
-                )}
-                {viewProject.documentation_url && (
-                  <a href={viewProject.documentation_url} target="_blank" rel="noopener noreferrer" className="text-primary underline">View Documentation</a>
                 )}
                 <div className="flex gap-2">
                   <Badge variant="secondary">{viewProject.type}</Badge>

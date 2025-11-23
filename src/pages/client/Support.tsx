@@ -18,31 +18,43 @@ const ClientSupport = () => {
 
   const fetchTickets = async () => {
     setLoading(true);
-    // const { data } = await supabase
-    //   .from('support_tickets')
-    //   .select('*')
-    //   .eq('client_id', user.id)
-    //   .order('created_at', { ascending: false });
-      // Supabase query removed; setTickets should be updated with valid data source if available.
-      setTickets([]); // Placeholder for tickets until valid data source is available
+    const { data } = await supabase
+      .from('support_tickets')
+      .select('*')
+      .eq('client_id', user.id)
+      .order('created_at', { ascending: false });
+    setTickets(data || []);
     setLoading(false);
   };
 
   const handleCreateTicket = async () => {
     setLoading(true);
-    // const { data, error } = await supabase
-    //   .from('support_tickets')
-    //   .insert({
-    //     client_id: user.id,
-    //     subject: newTicket.subject,
-    //     status: 'Open',
-    //     priority: 'Normal',
-    //     created_at: new Date().toISOString()
-    //   })
-    //   .select();
-      // Supabase query removed; ticket message creation logic should be updated with valid data source if available.
-      // Placeholder logic for ticket creation until valid data source is available.
-      // Ticket creation logic removed due to missing table and type error. Add valid logic when table is available.
+    const { data, error } = await supabase
+      .from('support_tickets')
+      .insert({
+        client_id: user.id,
+        subject: newTicket.subject,
+        status: 'Open',
+        priority: 'Normal',
+        created_at: new Date().toISOString()
+      })
+      .select();
+    if (data && data[0]) {
+      await supabase
+        .from('ticket_messages')
+        .insert({
+          ticket_id: data[0].id,
+          sender_id: user.id,
+          message: newTicket.message,
+          created_at: new Date().toISOString()
+        });
+      // Handle file upload if present
+      if (newTicket.file) {
+        // File upload logic here (Supabase Storage)
+      }
+      setNewTicket({ subject: '', message: '', file: null });
+      fetchTickets();
+    }
     setLoading(false);
   };
 

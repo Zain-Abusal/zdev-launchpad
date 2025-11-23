@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,9 +6,11 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { supabase } from '@/integrations/supabase/client';
 
-function AdminSettings() {
+const AdminSettings = () => {
+  // Supabase CRUD logic for settings
+  import { useEffect, useState } from 'react';
+  import { supabase } from '@/integrations/supabase/client';
   const [settings, setSettings] = useState({ site_title: '', logo_url: '', favicon_url: '', theme: 'system', smtp_host: '', smtp_user: '', smtp_pass: '', deployment: '' });
   const [loading, setLoading] = useState(false);
 
@@ -20,25 +21,18 @@ function AdminSettings() {
   const fetchSettings = async () => {
     setLoading(true);
     const { data } = await supabase
-      .from('docs')
-      .select('content')
-      .eq('slug', 'site-settings')
+      .from('settings')
+      .select('*')
       .limit(1);
-    if (data && data[0]) {
-      try {
-        setSettings(JSON.parse(data[0].content));
-      } catch {
-        setSettings({ site_title: '', logo_url: '', favicon_url: '', theme: 'system', smtp_host: '', smtp_user: '', smtp_pass: '', deployment: '' });
-      }
-    }
+    if (data && data[0]) setSettings(data[0]);
     setLoading(false);
   };
 
   const handleSave = async () => {
     setLoading(true);
     await supabase
-      .from('docs')
-      .upsert({ slug: 'site-settings', content: JSON.stringify(settings), title: 'Site Settings', category: 'settings' });
+      .from('settings')
+      .upsert(settings);
     fetchSettings();
     setLoading(false);
   };
@@ -126,7 +120,6 @@ function AdminSettings() {
       </div>
     </AdminLayout>
   );
-}
-
+};
 
 export default AdminSettings;

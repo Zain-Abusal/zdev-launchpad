@@ -22,12 +22,12 @@ const AdminDashboardHome = () => {
   const fetchStats = async () => {
     const projects = await supabase.from('projects').select('id');
     const clients = await supabase.from('clients').select('id');
-    // No support_tickets table, so skip tickets stat
+    const tickets = await supabase.from('support_tickets').select('id');
     const licenses = await supabase.from('licenses').select('id');
     setStats({
       projects: projects.data?.length || 0,
       clients: clients.data?.length || 0,
-      tickets: 0,
+      tickets: tickets.data?.length || 0,
       licenses: licenses.data?.length || 0,
     });
   };
@@ -37,24 +37,24 @@ const AdminDashboardHome = () => {
       .from('activity_logs')
       .select('*')
       .order('created_at', { ascending: false })
-      .limit(10);
+      .limit(5);
     setActivity(data || []);
   };
 
   const fetchAnnouncement = async () => {
     const { data } = await supabase
-      .from('header_announcements')
+      .from('announcements')
       .select('*')
       .order('created_at', { ascending: false })
       .limit(1);
     if (data && data[0]) {
       setAnnouncement(data[0].text);
-      setAnnouncementActive(data[0].enabled ?? false);
+      setAnnouncementActive(data[0].active);
     }
   };
 
   const handleAnnouncementSave = async () => {
-    await supabase.from('header_announcements').insert({ text: announcement, enabled: announcementActive });
+    await supabase.from('announcements').insert({ text: announcement, active: announcementActive });
     fetchAnnouncement();
   };
 
@@ -135,26 +135,11 @@ const AdminDashboardHome = () => {
           </CardHeader>
           <CardContent>
             {activity.length ? (
-              <table className="w-full text-sm border">
-                <thead>
-                  <tr>
-                    <th className="border px-2 py-1">User</th>
-                    <th className="border px-2 py-1">Action</th>
-                    <th className="border px-2 py-1">Details</th>
-                    <th className="border px-2 py-1">Time</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {activity.map((log: any) => (
-                    <tr key={log.id}>
-                      <td className="border px-2 py-1">{log.user_id || 'System'}</td>
-                      <td className="border px-2 py-1">{log.action}</td>
-                      <td className="border px-2 py-1">{log.details}</td>
-                      <td className="border px-2 py-1">{new Date(log.created_at).toLocaleString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <ul className="text-sm">
+                {activity.map((log: any) => (
+                  <li key={log.id} className="mb-2">{log.action}: {log.details} <span className="text-xs text-muted-foreground">({log.created_at})</span></li>
+                ))}
+              </ul>
             ) : <p className="text-muted-foreground">No recent activity.</p>}
           </CardContent>
         </Card>

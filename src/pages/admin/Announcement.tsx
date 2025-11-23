@@ -17,13 +17,13 @@ const AdminAnnouncement = () => {
   const fetchAnnouncement = async () => {
     setLoading(true);
     const { data } = await supabase
-      .from('header_announcements')
+      .from('announcements')
       .select('*')
       .order('created_at', { ascending: false })
       .limit(1);
     if (data && data[0]) {
       setAnnouncement(data[0].text);
-      setActive(data[0].enabled ?? false);
+      setActive(data[0].active);
     }
     setLoading(false);
   };
@@ -31,8 +31,8 @@ const AdminAnnouncement = () => {
   const handleSave = async () => {
     setLoading(true);
     await supabase
-      .from('header_announcements')
-      .insert({ text: announcement, enabled: active });
+      .from('announcements')
+      .insert({ text: announcement, active });
     fetchAnnouncement();
     setLoading(false);
   };

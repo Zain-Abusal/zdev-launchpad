@@ -20,8 +20,7 @@ const ClientLicense = () => {
   }, [user]);
 
   const fetchLicense = async () => {
-    // @ts-ignore: Fix deep type instantiation error
-    const { data } = await (supabase as any)
+    const { data } = await supabase
       .from('licenses')
       .select('*')
       .eq('client_id', user.id)
@@ -35,7 +34,7 @@ const ClientLicense = () => {
 
   const fetchDomains = async (licenseId: string) => {
     const { data } = await supabase
-      .from('license_domains')
+      .from('domains')
       .select('*')
       .eq('license_id', licenseId);
     if (data) setDomains(data);
@@ -59,9 +58,11 @@ const ClientLicense = () => {
           <CardContent>
             {license ? (
               <div>
-                <code className="text-sm bg-muted px-3 py-2 rounded block mb-2">{license.license_key}</code>
+                <code className="text-sm bg-muted px-3 py-2 rounded block mb-2">{license.key}</code>
+                <p className="text-xs text-muted-foreground mb-2">Tier: {license.tier}</p>
                 <p className="text-xs text-muted-foreground mb-2">Status: {license.status}</p>
-                <p className="text-xs text-muted-foreground mb-2">Expires: {license.expires_at || 'Never'}</p>
+                <p className="text-xs text-muted-foreground mb-2">Usage: {license.usage_count}</p>
+                <p className="text-xs text-muted-foreground mb-2">Suspended Reason: {license.suspended_reason || 'None'}</p>
                 <Button size="sm" variant="outline" className="mt-2">Renew/Change Tier</Button>
               </div>
             ) : <p className="text-muted-foreground">No license found.</p>}
@@ -76,7 +77,7 @@ const ClientLicense = () => {
             {domains.length ? (
               <ul className="text-sm">
                 {domains.map((domain: any) => (
-                  <li key={domain.id} className="mb-1">{domain.domain} - {domain.last_seen ? 'Active' : 'Inactive'}</li>
+                  <li key={domain.id} className="mb-1">{domain.domain} - {domain.activated ? 'Active' : 'Inactive'}</li>
                 ))}
               </ul>
             ) : <p className="text-muted-foreground">No domains found.</p>}

@@ -14,30 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-            activity_logs: {
-              Row: {
-                id: string;
-                user_id: string | null;
-                action: string;
-                details: string;
-                created_at: string | null;
-              };
-              Insert: {
-                id?: string;
-                user_id?: string | null;
-                action: string;
-                details: string;
-                created_at?: string | null;
-              };
-              Update: {
-                id?: string;
-                user_id?: string | null;
-                action?: string;
-                details?: string;
-                created_at?: string | null;
-              };
-              Relationships: [];
-            };
       blog_posts: {
         Row: {
           content: string

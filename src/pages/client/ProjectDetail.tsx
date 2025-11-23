@@ -181,10 +181,10 @@ const ClientProjectDetail = () => {
             </CardHeader>
             <CardContent className="space-y-3">
               <p className="text-sm text-muted-foreground">Access comprehensive documentation for this project</p>
-              {project.documentation_url ? (
-                <a href={project.documentation_url} target="_blank" rel="noopener noreferrer">
+              {project.demo_url && project.demo_url.includes('/docs') ? (
+                <a href={project.demo_url} target="_blank" rel="noopener noreferrer">
                   <Button variant="outline" className="w-full justify-start">
-                    <FileText className="mr-2 h-4 w-4" />Open Project Documentation
+                    <FileText className="mr-2 h-4 w-4" />Open Custom Documentation
                   </Button>
                 </a>
               ) : (
