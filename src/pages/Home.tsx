@@ -4,7 +4,6 @@ import { PublicLayout } from '@/components/layout/PublicLayout';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Code2, Layout, Terminal, ArrowRight, Check } from 'lucide-react';
-import posthog from 'posthog-js';
 
 const Home = () => {
   const services = [

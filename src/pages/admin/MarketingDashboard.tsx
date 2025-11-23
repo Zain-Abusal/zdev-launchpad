@@ -16,11 +16,9 @@ const MarketingDashboard = () => {
     setSending(true);
     setResult('');
     const emails = recipients.split(',').map(e => e.trim()).filter(Boolean);
-    // Try to get admin email from env or default
-    const sender = import.meta.env.VITE_ZDEV_ADMIN_EMAIL || 'zainabusal113@gmail.com';
     try {
       for (const to of emails) {
-        await sendResendEmail({ to, subject, html: bodyHtml || `<pre>${bodyText}</pre>`, sender });
+        await sendResendEmail({ to, subject, html: bodyHtml || `<pre>${bodyText}</pre>` });
       }
       setResult('Emails sent successfully!');
     } catch (err: any) {
