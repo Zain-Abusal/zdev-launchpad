@@ -8,7 +8,6 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Github, Chrome } from 'lucide-react';
-import Turnstile from '@/components/ui/Turnstile';
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -17,19 +16,14 @@ const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [turnstileToken, setTurnstileToken] = useState('');
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    if (!turnstileToken) {
-      toast({ title: 'Security Check', description: 'Please complete the Turnstile challenge.', variant: 'destructive' });
-      setLoading(false);
-      return;
-    }
+
     try {
       const redirectUrl = `${window.location.origin}/`;
-      // Optionally, validate token server-side here
+
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -40,11 +34,21 @@ const SignUp = () => {
           },
         },
       });
+
       if (error) throw error;
-      toast({ title: 'Success', description: 'Account created! Please check your email to verify your account.' });
+
+      toast({
+        title: 'Success',
+        description: 'Account created! Please check your email to verify your account.',
+      });
+
       navigate('/auth/sign-in');
     } catch (error: any) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
     }
@@ -152,7 +156,6 @@ const SignUp = () => {
                   />
                 </div>
 
-                <Turnstile siteKey="0x4AAAAAACCdBCZmXnh5jkvO" onVerify={setTurnstileToken} />
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? 'Creating account...' : 'Create account'}
                 </Button>

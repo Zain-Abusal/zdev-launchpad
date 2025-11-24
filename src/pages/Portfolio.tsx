@@ -33,102 +33,77 @@ const Portfolio = () => {
 
   return (
     <PublicLayout>
-      <section className="min-h-screen px-4 md:px-8 py-20">
+      <section className="bg-gradient-to-br from-blue-50 via-pink-50 to-yellow-100 min-h-screen px-4 md:px-8 py-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h1 className="text-5xl md:text-6xl font-bold mb-4 text-gradient">Portfolio</h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <h1 className="text-5xl font-extrabold mb-4 text-primary drop-shadow-lg">Portfolio</h1>
+          <p className="text-xl text-primary/80 max-w-2xl mx-auto">
             A selection of projects I've built for clients
           </p>
         </motion.div>
 
-        <div className="flex justify-center gap-3 mb-14 flex-wrap">
+        <div className="flex justify-center gap-2 mb-12 flex-wrap">
           {filters.map((f) => (
             <motion.div
               key={f}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              variant={filter === f ? 'default' : 'outline'}
+              className={`cursor-pointer px-5 py-2 text-base font-semibold rounded-xl shadow-md transition-all duration-200 ${filter === f ? 'bg-primary text-white' : 'bg-white/80 text-primary border border-primary/30'}`}
+              onClick={() => setFilter(f)}
             >
-              <Badge
-                variant={filter === f ? 'default' : 'outline'}
-                className={`cursor-pointer px-6 py-2.5 text-base font-semibold rounded-full transition-all duration-200 ${
-                  filter === f ? 'gradient-primary text-white shadow-lg shadow-cyan-500/25' : 'bg-card hover:bg-muted'
-                }`}
-                onClick={() => setFilter(f)}
-              >
-                {f}
-              </Badge>
-            </motion.div>
+              {f}
+            </Badge>
           ))}
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
           {filteredProjects.map((project, index) => (
             <motion.div
               key={project.id}
-              initial={{ opacity: 0, y: 40 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.6, delay: index * 0.1, type: 'spring' }}
+              viewport={{ once: true, amount: 0.5 }}
+              transition={{ duration: 0.8, delay: index * 0.2, type: 'spring' }}
             >
               <Link to={`/portfolio/${project.id}`}>
-                <MovingBorder
-                  duration={3000}
-                  className="rounded-2xl overflow-hidden h-full"
-                  rx="24px"
-                  ry="24px"
-                >
-                  <div className="card-minimal overflow-hidden hover:shadow-2xl transition-all h-full group bg-card">
-                    {project.images && Array.isArray(project.images) && project.images.length > 0 ? (
-                      <div className="aspect-video bg-muted overflow-hidden relative">
-                        <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10 flex items-center justify-center">
-                          <Eye className="h-12 w-12 text-cyan-500" />
-                        </div>
-                        {project.images.slice(0, 2).map((img: string, idx: number) => (
-                          <img
-                            key={idx}
-                            src={img}
-                            alt={project.title}
-                            className="w-1/2 h-full object-cover inline-block group-hover:scale-110 transition-transform duration-500"
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                            }}
-                          />
-                        ))}
-                      </div>
-                    ) : project.image_url ? (
-                      <div className="aspect-video bg-muted overflow-hidden relative">
-                        <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10 flex items-center justify-center">
-                          <Eye className="h-12 w-12 text-cyan-500" />
-                        </div>
-                        <img
-                          src={project.image_url}
+                <Card className="overflow-hidden rounded-2xl shadow-2xl bg-white/90 dark:bg-card border-2 border-primary/10 hover:scale-[1.03] hover:shadow-primary/30 transition-all duration-300 h-full">
+                  {project.images && Array.isArray(project.images) && project.images.length > 0 ? (
+                    <div className="aspect-video bg-muted overflow-hidden flex flex-row gap-2">
+                      {project.images.slice(0,2).map((img: string, idx: number) => (
+                        <img 
+                          key={idx}
+                          src={img}
                           alt={project.title}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                          }}
+                          className="w-1/2 h-full object-cover rounded-xl"
+                          onError={e => { e.currentTarget.style.display = 'none'; }}
                         />
-                      </div>
-                    ) : null}
-                    <div className="p-6">
-                      <div className="flex items-start justify-between gap-2 mb-3">
-                        <h3 className="text-xl font-bold">{project.title || 'Untitled'}</h3>
-                        <Badge variant="secondary" className="shrink-0">{project.type || 'N/A'}</Badge>
-                      </div>
-                      <p className="text-muted-foreground">
-                        {project.short_description ||
-                          (project.full_description
-                            ? project.full_description.slice(0, 120) + (project.full_description.length > 120 ? '...' : '')
-                            : 'No description available.')}
-                      </p>
+                      ))}
                     </div>
-                  </div>
-                </MovingBorder>
+                  ) : project.image_url ? (
+                    <div className="aspect-video bg-muted overflow-hidden rounded-xl">
+                      <img 
+                        src={project.image_url} 
+                        alt={project.title}
+                        className="w-full h-full object-cover rounded-xl"
+                        onError={e => { e.currentTarget.style.display = 'none'; }}
+                      />
+                    </div>
+                  ) : null}
+                  <CardHeader>
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <CardTitle className="text-xl font-bold text-primary/90">{project.title || 'Untitled'}</CardTitle>
+                      <Badge variant="secondary" className="px-3 py-1 rounded-lg text-xs font-semibold">{project.type || 'N/A'}</Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-base text-muted-foreground mb-2">
+                      {project.short_description || (project.full_description ? project.full_description.slice(0, 120) + (project.full_description.length > 120 ? '...' : '') : 'No description available.')}
+                    </p>
+                  </CardContent>
+                </Card>
               </Link>
             </motion.div>
           ))}
@@ -136,7 +111,7 @@ const Portfolio = () => {
 
         {filteredProjects.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-muted-foreground text-lg">No projects found for this filter.</p>
+            <p className="text-primary/70 text-lg">No projects found for this filter.</p>
           </div>
         )}
       </section>

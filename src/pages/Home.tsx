@@ -3,12 +3,9 @@ import { motion } from 'framer-motion';
 import { PublicLayout } from '@/components/layout/PublicLayout';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import AnimatedCard from '@/components/ui/AnimatedCard';
 import NewsletterSignup from '@/components/ui/NewsletterSignup';
-import { Code2, Layout, Terminal, ArrowRight, Check, Sparkles, Zap, Target } from 'lucide-react';
-import { BackgroundGradient } from '@/components/ui/background-gradient';
-import { TextGenerateEffect } from '@/components/ui/text-generate-effect';
-import { BentoGrid, BentoGridItem } from '@/components/ui/bento-grid';
-import { Spotlight } from '@/components/ui/spotlight';
+import { Code2, Layout, Terminal, ArrowRight, Check } from 'lucide-react';
 
 const Home = () => {
   const services = [
@@ -38,84 +35,67 @@ const Home = () => {
 
   return (
     <PublicLayout>
-      {/* Hero Section with Spotlight */}
-      <section className="relative overflow-hidden">
-        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="url(#gradient)" />
-        <svg width="0" height="0" className="absolute">
-          <defs>
-            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="hsl(var(--cyan))" />
-              <stop offset="50%" stopColor="hsl(var(--purple))" />
-              <stop offset="100%" stopColor="hsl(var(--pink))" />
-            </linearGradient>
-          </defs>
-        </svg>
-        <div className="container mx-auto px-4 md:px-8 py-20 md:py-32 relative z-10">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <div className="mb-8">
-                <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6">
-                  Custom Web Solutions
-                  <span className="block text-gradient mt-2">Built for You</span>
-                </h1>
-              </div>
-              <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-                Freelance developer specializing in custom websites, web systems, and Python automation tools.
-              </p>
-              <div className="flex gap-4">
-                <Link to="/get-started">
-                  <Button size="lg" className="group relative overflow-hidden rounded-xl gradient-primary hover:shadow-2xl hover:shadow-cyan-500/25 transition-all">
-                    <span className="relative z-10 flex items-center text-white font-semibold">
-                      Get Started
-                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                    </span>
-                  </Button>
-                </Link>
-                <Link to="/portfolio">
-                  <Button size="lg" variant="outline" className="rounded-xl border-2 hover:border-cyan-500/50 transition-all">
-                    View Portfolio
-                  </Button>
-                </Link>
-              </div>
-            </motion.div>
-
-            <div className="flex flex-col gap-6">
-              <BackgroundGradient className="rounded-3xl p-1">
-                <div className="card-minimal bg-card">
-                  <div className="p-8 text-center">
-                    <Sparkles className="mx-auto mb-4 h-12 w-12 text-cyan-500" />
-                    <h3 className="text-2xl font-bold mb-2">Modern & Fast</h3>
-                    <p className="text-muted-foreground">Built with cutting-edge technologies for optimal performance</p>
-                  </div>
-                </div>
-              </BackgroundGradient>
-              <BackgroundGradient className="rounded-3xl p-1">
-                <div className="card-minimal bg-card">
-                  <div className="p-8 text-center">
-                    <Zap className="mx-auto mb-4 h-12 w-12 text-purple-500" />
-                    <h3 className="text-2xl font-bold mb-2">Responsive Design</h3>
-                    <p className="text-muted-foreground">Seamless experience across all devices and screen sizes</p>
-                  </div>
-                </div>
-              </BackgroundGradient>
+      {/* Hero Section - Modern, Even, shadcn Card */}
+      <section className="container mx-auto px-4 md:px-8 py-20 md:py-32">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <h1 className="text-6xl font-extrabold tracking-tight mb-6 text-primary drop-shadow-lg">
+              Custom Web Solutions
+              <span className="block text-secondary">Built for You</span>
+            </h1>
+            <p className="text-2xl text-muted-foreground mb-8">
+              Freelance developer specializing in custom websites, web systems, and Python automation tools.
+            </p>
+            <div className="flex gap-4">
+              <Link to="/get-started">
+                <Button size="lg" className="group w-full md:w-auto">
+                  Get Started
+                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Button>
+              </Link>
+              <Link to="/portfolio">
+                <Button size="lg" variant="outline">View Portfolio</Button>
+              </Link>
             </div>
-          </div>
+          </motion.div>
+
+          {/* Modern Cards - shadcn/ui Card, visually balanced */}
+          <div className="flex flex-col gap-8 items-center w-full">
+            <div className="w-full max-w-md">
+              <Card className="rounded-2xl shadow-xl bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 border-2 border-primary/10">
+                <div className="p-8 text-center">
+                  <span className="block text-3xl font-bold text-primary mb-2">Modern</span>
+                  <p className="text-base text-muted-foreground mb-2">Built with React, Tailwind, and Framer Motion.</p>
+                  <Check className="mx-auto text-primary" />
+                </div>
+              </Card>
+            </div>
+            <div className="w-full max-w-md">
+              <Card className="rounded-2xl shadow-xl bg-gradient-to-br from-pink-100 via-yellow-100 to-blue-100 border-2 border-secondary/10">
+                <div className="p-8 text-center">
+                  <span className="block text-3xl font-bold text-secondary mb-2">Fast</span>
+                  <p className="text-base text-muted-foreground mb-2">Lightning quick load times and smooth interactions.</p>
+                  <ArrowRight className="mx-auto text-secondary" />
+                </div>
+              </Card>
+            </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* What I Build - Bento Grid Style */}
-      <section className="py-20 bg-muted/30">
+      {/* What I Build - Apple.com style scroll animation */}
+      <section className="bg-gradient-to-br from-blue-50 via-pink-50 to-yellow-50 py-20">
         <div className="container mx-auto px-4 md:px-8">
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.5 }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-16"
+            transition={{ duration: 0.8, type: 'spring' }}
+            className="text-center mb-12"
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-4">What I Build</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -127,16 +107,17 @@ const Home = () => {
             {services.map((service, index) => (
               <BentoGridItem
                 key={service.title}
-                title={service.title}
-                description={service.description}
-                header={
-                  <div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl gradient-primary items-center justify-center">
-                    <div className="text-white">{service.icon}</div>
-                  </div>
-                }
-                icon={service.icon}
-                className={index === 1 ? "md:col-span-2" : ""}
-              />
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.5 }}
+                transition={{ duration: 0.8, delay: index * 0.2, type: 'spring' }}
+              >
+                <AnimatedCard className="h-full">
+                  <div className="text-primary mb-4">{service.icon}</div>
+                  <h3 className="text-xl font-bold mb-3">{service.title}</h3>
+                  <p className="text-muted-foreground">{service.description}</p>
+                </AnimatedCard>
+              </motion.div>
             ))}
           </BentoGrid>
         </div>
@@ -144,7 +125,7 @@ const Home = () => {
 
       {/* How It Works */}
       <section className="py-20">
-        <div className="container mx-auto px-4 md:px-8">
+        <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -167,13 +148,11 @@ const Home = () => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1, type: "spring" }}
               >
-                <div className="card-minimal h-full text-center p-8 hover:shadow-2xl transition-all">
-                  <div className="text-6xl font-bold text-gradient mb-4">
-                    {step.number}
-                  </div>
-                  <h3 className="text-xl font-bold mb-3">{step.title}</h3>
-                  <p className="text-muted-foreground">{step.description}</p>
-                </div>
+                <AnimatedCard className="text-center h-full">
+                  <div className="text-4xl font-bold text-primary mb-4">{step.number}</div>
+                  <h3 className="text-lg font-bold mb-2">{step.title}</h3>
+                  <p className="text-sm text-muted-foreground">{step.description}</p>
+                </AnimatedCard>
               </motion.div>
             ))}
           </div>
@@ -181,9 +160,9 @@ const Home = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="relative py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-purple-500/10 to-pink-500/10" />
-        <div className="container mx-auto px-4 md:px-8 text-center relative z-10">
+      <section className="bg-gradient-to-br from-primary/80 to-secondary/80 text-primary-foreground py-20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:20px_20px]" />
+        <div className="container mx-auto px-4 md:px-8 text-center relative">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -198,23 +177,12 @@ const Home = () => {
               Let's discuss how I can help bring your vision to life
             </p>
             <Link to="/get-started">
-              <Button size="lg" className="gradient-primary hover:shadow-2xl hover:shadow-purple-500/25 rounded-xl px-8 text-white font-semibold transition-all">
+                <Button size="lg" variant="secondary" className="group w-full md:w-auto hover-scale">
                 Get Started Today
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
           </motion.div>
-        </div>
-      </section>
-
-      {/* Newsletter Signup Section - vibrant colors and big header */}
-      <section className="bg-gradient-to-br from-pink-100 via-yellow-50 to-blue-100 py-20">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="flex flex-col items-center gap-6">
-            <h2 className="text-4xl md:text-5xl font-extrabold text-primary mb-4 drop-shadow-lg">Join the Newsletter</h2>
-            <span className="text-lg text-primary/80 mb-2 font-medium">Sign up for updates, tips, and exclusive offers. You’ll get notified about new features and login changes.</span>
-            <NewsletterSignup />
-          </div>
         </div>
       </section>
     </PublicLayout>

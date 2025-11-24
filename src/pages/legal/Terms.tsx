@@ -28,11 +28,6 @@ const Terms = () => {
                 <p>
                   By accessing and using zdev's services, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.
                 </p>
-                <ul className="list-disc pl-6 space-y-2 mt-3">
-                  <li>User actions and system events may be logged for security and audit purposes.</li>
-                  <li>Cloudflare Turnstile CAPTCHA is used to protect sensitive actions.</li>
-                  <li>Turnstile may set cookies for bot protection and session management.</li>
-                </ul>
               </section>
 
               <section>

@@ -4,11 +4,8 @@ import { AdminLayout } from '@/components/layout/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, FolderKanban, FileText, Inbox } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import { logActivity } from '@/lib/utils';
 
 const AdminDashboard = () => {
-  const { user } = useAuth();
   const [stats, setStats] = useState({
     clients: 0,
     projects: 0,
@@ -18,10 +15,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     fetchStats();
-    if (user) {
-      logActivity('admin_panel_open', 'Admin dashboard opened', user.id, user.email);
-    }
-  }, [user]);
+  }, []);
 
   const fetchStats = async () => {
     const [clients, projects, posts, requests] = await Promise.all([

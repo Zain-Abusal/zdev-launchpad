@@ -11,8 +11,9 @@ export const PublicLayout = ({ children }: PublicLayoutProps) => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 mb-16">{children}</main>
+      <main className="flex-1">{children}</main>
       <Footer />
+      
       {/* Floating Chat Button */}
       <Button
         size="icon"

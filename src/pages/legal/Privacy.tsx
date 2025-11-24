@@ -104,7 +104,7 @@ const Privacy = () => {
               <section>
                 <h2 className="text-2xl font-semibold mt-8 mb-4">7. Cookies and Tracking</h2>
                 <p>
-                  We use cookies and similar tracking technologies to collect and track information about your use of our services. Cloudflare Turnstile CAPTCHA is used for bot protection and may set cookies to verify users and prevent abuse. You can control cookies through your browser settings, but disabling cookies may affect your ability to use certain features.
+                  We use cookies and similar tracking technologies to collect and track information about your use of our services. You can control cookies through your browser settings, but disabling cookies may affect your ability to use certain features.
                 </p>
               </section>
 

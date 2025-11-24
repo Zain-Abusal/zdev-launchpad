@@ -2,7 +2,6 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { sendResendEmail } from '@/integrations/resend';
-import { logActivity } from '@/lib/utils';
 
 interface AuthContextType {
   user: User | null;
@@ -28,7 +27,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
-      // Send thank you email and log activity only on login
+      // Send thank you email only on login
       if (event === 'SIGNED_IN' && session?.user?.email && session.user.email !== lastUserEmail) {
         lastUserEmail = session.user.email;
         try {
@@ -39,9 +38,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           });
         } catch (err) {
           // Silently ignore email errors
-        }
-        if (session?.user?.id) {
-          logActivity('login', 'User logged in', session.user.id, session.user.email);
         }
       }
     });

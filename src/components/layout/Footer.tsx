@@ -3,9 +3,9 @@ import { Github, Twitter, Linkedin } from 'lucide-react';
 
 export const Footer = () => {
   return (
-    <footer className="bg-gradient-to-br from-blue-50 via-pink-50 to-yellow-100 border-t border-border">
-      <div className="container mx-auto px-6 md:px-12 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-12">
+    <footer className="border-t border-border bg-background">
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
           <div>
             <h3 className="font-bold text-lg mb-4">zdev</h3>
             <p className="text-sm text-muted-foreground">
@@ -56,8 +56,8 @@ export const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-border text-center text-base text-primary/80">
-          <p className="font-semibold">&copy; {new Date().getFullYear()} zdev. All rights reserved.</p>
+        <div className="mt-8 pt-8 border-t border-border text-center text-sm text-muted-foreground">
+          <p>&copy; {new Date().getFullYear()} zdev. All rights reserved.</p>
         </div>
       </div>
     </footer>

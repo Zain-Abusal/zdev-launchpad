@@ -26,48 +26,49 @@ const Blog = () => {
 
   return (
     <PublicLayout>
-      <section className="min-h-screen px-4 md:px-8 py-20">
+      <section className="bg-gradient-to-br from-blue-50 via-pink-50 to-yellow-100 min-h-screen px-4 md:px-8 py-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h1 className="text-5xl md:text-6xl font-bold mb-4 text-gradient">Blog</h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <h1 className="text-5xl font-extrabold mb-4 text-primary drop-shadow-lg">Blog</h1>
+          <p className="text-xl text-primary/80 max-w-2xl mx-auto">
             Thoughts on web development, automation, and building great software
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10 max-w-6xl mx-auto">
           {posts.map((post, index) => (
             <motion.div
               key={post.id}
-              initial={{ opacity: 0, y: 40 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.5 }}
-              transition={{ duration: 0.8, delay: index * 0.2, type: 'spring' }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
             >
               <Link to={`/blog/${post.slug}`}>
-                <div className="card-minimal h-full overflow-hidden hover:shadow-2xl transition-all group">
+                <Card className="h-full rounded-2xl shadow-2xl bg-white/90 dark:bg-card border-2 border-primary/10 hover:scale-[1.03] hover:shadow-primary/30 transition-all duration-300 overflow-hidden">
                   {post.cover_img && (
-                    <div className="aspect-video bg-muted overflow-hidden relative">
-                      <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10" />
+                    <div className="aspect-video bg-muted overflow-hidden rounded-xl">
                       <img
                         src={post.cover_img}
                         alt={post.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        className="w-full h-full object-cover rounded-xl"
                         onError={e => { e.currentTarget.style.display = 'none'; }}
                       />
                     </div>
                   )}
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold mb-3">{post.title}</h3>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+                  <CardHeader>
+                    <CardTitle className="text-xl font-bold text-primary/90 mb-2">{post.title}</CardTitle>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Calendar className="h-4 w-4" />
                       {new Date(post.created_at).toLocaleDateString()}
                     </div>
-                    <p className="text-muted-foreground line-clamp-3 mb-4">
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <p className="text-base text-muted-foreground line-clamp-3">
                       {post.excerpt}
                     </p>
                     {post.tags && post.tags.length > 0 && (

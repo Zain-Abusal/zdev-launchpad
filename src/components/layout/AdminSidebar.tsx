@@ -34,7 +34,6 @@ export const AdminSidebar = () => {
     { path: '/admin/projects', label: 'Projects', icon: FolderKanban },
     { path: '/admin/blog', label: 'Blog', icon: FileText },
     { path: '/admin/portfolio', label: 'Portfolio', icon: LayoutIcon },
-    { path: '/admin/images', label: 'Images', icon: Boxes },
     { path: '/admin/demos', label: 'Demos', icon: Boxes },
     { path: '/admin/docs-links', label: 'Docs Links', icon: LinkIcon },
     { path: '/admin/licenses', label: 'Licenses', icon: Key },
