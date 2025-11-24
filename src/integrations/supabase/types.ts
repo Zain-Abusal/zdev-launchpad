@@ -103,6 +103,7 @@ export type Database = {
           created_at: string | null
           excerpt: string | null
           id: string
+          images: string[] | null
           published: boolean | null
           slug: string
           tags: string[] | null
@@ -114,6 +115,7 @@ export type Database = {
           created_at?: string | null
           excerpt?: string | null
           id?: string
+          images?: string[] | null
           published?: boolean | null
           slug: string
           tags?: string[] | null
@@ -125,6 +127,7 @@ export type Database = {
           created_at?: string | null
           excerpt?: string | null
           id?: string
+          images?: string[] | null
           published?: boolean | null
           slug?: string
           tags?: string[] | null
@@ -635,6 +638,7 @@ export type Database = {
           full_description: string | null
           id: string
           image_url: string | null
+          images: string[] | null
           short_description: string
           tech_stack: string[] | null
           title: string
@@ -648,6 +652,7 @@ export type Database = {
           full_description?: string | null
           id?: string
           image_url?: string | null
+          images?: string[] | null
           short_description: string
           tech_stack?: string[] | null
           title: string
@@ -661,6 +666,7 @@ export type Database = {
           full_description?: string | null
           id?: string
           image_url?: string | null
+          images?: string[] | null
           short_description?: string
           tech_stack?: string[] | null
           title?: string
