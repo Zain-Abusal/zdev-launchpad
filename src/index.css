@@ -10,48 +10,51 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 209 40% 96%;
-    --foreground: 222 47% 11%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 9%;
 
-    --card: 210 40% 98%;
-    --card-foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 9%;
 
-    --popover: 214 31% 91%;
-    --popover-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 9%;
 
-    --primary: 216 19% 26%;
-    --primary-foreground: 210 19% 98%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 215 19% 34%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 0 0% 9%;
 
-    --muted: 215 20% 65%;
-    --muted-foreground: 222 47% 11%;
+    --muted: 240 5% 96%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 210 40% 98%;
-    --accent-foreground: 215 16% 46%;
+    --accent: 240 5% 96%;
+    --accent-foreground: 0 0% 9%;
 
-    --destructive: 0 72% 50%;
-    --destructive-foreground: 0 85% 97%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 212 26% 83%;
-    --input: 212 26% 83%;
-    --ring: 216 19% 26%;
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: 0 0% 9%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
     
-    /* Warm wood/brown accent colors */
-    --wood: 30 40% 50%;
-    --wood-light: 30 45% 65%;
-    --wood-dark: 30 35% 35%;
+    /* Vibrant accent colors */
+    --cyan: 189 94% 43%;
+    --cyan-light: 189 94% 53%;
+    --purple: 271 91% 65%;
+    --purple-light: 271 91% 75%;
+    --pink: 329 86% 70%;
+    --pink-light: 329 86% 80%;
     
     /* Enhanced shadows */
-    --shadow-elegant: 0 10px 30px -10px hsl(var(--primary) / 0.2);
-    --shadow-glow: 0 0 40px hsl(var(--primary) / 0.15);
+    --shadow-elegant: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
+    --shadow-glow: 0 0 60px rgba(0, 0, 0, 0.08);
     
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
-    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
+    --gradient-primary: linear-gradient(135deg, hsl(var(--cyan)), hsl(var(--purple)));
+    --gradient-accent: linear-gradient(135deg, hsl(var(--purple)), hsl(var(--pink)));
     
     /* Animations */
     --transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -113,50 +116,58 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
 
-    --card: 217 32% 17%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 6%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 215 24% 26%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 30 40% 55%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
 
-    --secondary: 215 19% 34%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 240 4% 16%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 215 16% 46%;
-    --muted-foreground: 215 20% 75%;
+    --muted: 240 4% 16%;
+    --muted-foreground: 0 0% 63%;
 
-    --accent: 30 45% 65%;
-    --accent-foreground: 222 47% 11%;
+    --accent: 240 4% 16%;
+    --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 85% 97%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 215 19% 25%;
-    --input: 215 19% 25%;
-    --ring: 30 40% 55%;
-    --sidebar-background: 222 47% 11%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 30 40% 55%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 215 19% 34%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 215 19% 25%;
-    --sidebar-ring: 30 40% 55%;
-    --chart-1: 30 40% 55%;
-    --chart-2: 30 45% 65%;
-    --chart-3: 215 20% 65%;
-    --chart-4: 217 10% 64%;
-    --chart-5: 215 16% 46%;
-    --sidebar: 217 32% 17%;
-    --wood: 30 40% 55%;
-    --wood-light: 30 45% 70%;
-    --wood-dark: 30 35% 40%;
+    --border: 240 4% 16%;
+    --input: 240 4% 16%;
+    --ring: 0 0% 83%;
+    
+    --sidebar-background: 0 0% 3.9%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 0 0% 98%;
+    --sidebar-primary-foreground: 0 0% 9%;
+    --sidebar-accent: 240 4% 16%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 4% 16%;
+    --sidebar-ring: 0 0% 83%;
+    
+    --chart-1: 189 94% 43%;
+    --chart-2: 271 91% 65%;
+    --chart-3: 329 86% 70%;
+    --chart-4: 189 94% 53%;
+    --chart-5: 271 91% 75%;
+    
+    --sidebar: 0 0% 6%;
+    
+    /* Vibrant accent colors for dark mode */
+    --cyan: 189 94% 43%;
+    --cyan-light: 189 94% 53%;
+    --purple: 271 91% 65%;
+    --purple-light: 271 91% 75%;
+    --pink: 329 86% 70%;
+    --pink-light: 329 86% 80%;
   }
 }
 
@@ -166,11 +177,16 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground font-sans antialiased;
   }
   
   h1, h2, h3, h4, h5, h6 {
     @apply font-sans tracking-tight;
+  }
+  
+  /* Remove default card borders */
+  .card {
+    @apply border-0;
   }
 }
 
@@ -185,11 +201,6 @@ All colors MUST be HSL.
   
   .hover-lift {
     @apply transition-all duration-300 hover:-translate-y-1;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-  }
-  
-  .hover-lift:hover {
-    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 10px 10px -5px rgb(0 0 0 / 0.04);
   }
   
   .hover-scale {
@@ -197,22 +208,30 @@ All colors MUST be HSL.
   }
   
   .gradient-primary {
-    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+    background: linear-gradient(135deg, hsl(var(--cyan)), hsl(var(--purple)));
+  }
+  
+  .gradient-accent {
+    background: linear-gradient(135deg, hsl(var(--purple)), hsl(var(--pink)));
   }
   
   .gradient-text {
-    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+    background: linear-gradient(135deg, hsl(var(--cyan)), hsl(var(--purple)));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
   
   .glass-effect {
-    @apply backdrop-blur-sm bg-background/80;
+    @apply backdrop-blur-xl bg-background/50 border border-white/10;
   }
   
-  .card-hover {
-    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5;
+  .card-minimal {
+    @apply bg-card rounded-2xl p-6 shadow-lg border-0;
+  }
+  
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500;
   }
 }
 
