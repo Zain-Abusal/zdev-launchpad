@@ -36,13 +36,13 @@ const Demos = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Demos</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gradient">Demos</h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Interactive demonstrations of various projects and capabilities
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {demos.map((demo, index) => (
             <motion.div
               key={demo.title}
@@ -51,14 +51,14 @@ const Demos = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
             >
-              <Card className="h-full hover-lift hover-scale">
-                <CardHeader>
+              <div className="card-minimal h-full hover:shadow-2xl transition-all">
+                <div className="mb-4">
                   <div className="flex items-start justify-between gap-2 mb-2">
-                    <CardTitle className="text-lg">{demo.title}</CardTitle>
+                    <h3 className="text-xl font-bold">{demo.title}</h3>
                     <Badge variant="secondary">{demo.type}</Badge>
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
+                </div>
+                <div className="space-y-4">
                   <p className="text-sm text-muted-foreground">
                     {demo.description}
                   </p>
@@ -68,19 +68,19 @@ const Demos = () => {
                     <ul className="space-y-1">
                       {demo.features.map((feature) => (
                         <li key={feature} className="flex items-start gap-2 text-sm">
-                          <span className="text-primary mt-0.5">•</span>
+                          <span className="text-cyan-500 mt-0.5">•</span>
                           <span className="text-muted-foreground">{feature}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
 
-                  <Button variant="outline" className="w-full" disabled>
+                  <Button variant="outline" className="w-full rounded-xl" disabled>
                     <ExternalLink className="mr-2 h-4 w-4" />
                     View Demo (Coming Soon)
                   </Button>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </motion.div>
           ))}
         </div>

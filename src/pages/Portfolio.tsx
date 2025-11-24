@@ -33,14 +33,14 @@ const Portfolio = () => {
 
   return (
     <PublicLayout>
-      <section className="bg-background min-h-screen px-4 md:px-8 py-20">
+      <section className="min-h-screen px-4 md:px-8 py-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h1 className="text-5xl md:text-6xl font-extrabold mb-4 text-primary">Portfolio</h1>
+          <h1 className="text-5xl md:text-6xl font-bold mb-4 text-gradient">Portfolio</h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             A selection of projects I've built for clients
           </p>
@@ -55,8 +55,8 @@ const Portfolio = () => {
             >
               <Badge
                 variant={filter === f ? 'default' : 'outline'}
-                className={`cursor-pointer px-5 py-2 text-base font-semibold rounded-xl shadow-md transition-all duration-200 ${
-                  filter === f ? 'bg-primary text-primary-foreground' : 'bg-background border-border hover:bg-muted'
+                className={`cursor-pointer px-6 py-2.5 text-base font-semibold rounded-full transition-all duration-200 ${
+                  filter === f ? 'gradient-primary text-white shadow-lg shadow-cyan-500/25' : 'bg-card hover:bg-muted'
                 }`}
                 onClick={() => setFilter(f)}
               >
@@ -66,7 +66,7 @@ const Portfolio = () => {
           ))}
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10 max-w-7xl mx-auto">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {filteredProjects.map((project, index) => (
             <motion.div
               key={project.id}
@@ -82,11 +82,11 @@ const Portfolio = () => {
                   rx="24px"
                   ry="24px"
                 >
-                  <Card className="overflow-hidden rounded-2xl bg-card border-0 hover:shadow-2xl transition-all duration-300 h-full group">
+                  <div className="card-minimal overflow-hidden hover:shadow-2xl transition-all h-full group bg-card">
                     {project.images && Array.isArray(project.images) && project.images.length > 0 ? (
                       <div className="aspect-video bg-muted overflow-hidden relative">
-                        <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10 flex items-center justify-center">
-                          <Eye className="h-12 w-12 text-primary" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10 flex items-center justify-center">
+                          <Eye className="h-12 w-12 text-cyan-500" />
                         </div>
                         {project.images.slice(0, 2).map((img: string, idx: number) => (
                           <img
@@ -102,8 +102,8 @@ const Portfolio = () => {
                       </div>
                     ) : project.image_url ? (
                       <div className="aspect-video bg-muted overflow-hidden relative">
-                        <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10 flex items-center justify-center">
-                          <Eye className="h-12 w-12 text-primary" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10 flex items-center justify-center">
+                          <Eye className="h-12 w-12 text-cyan-500" />
                         </div>
                         <img
                           src={project.image_url}
@@ -115,23 +115,19 @@ const Portfolio = () => {
                         />
                       </div>
                     ) : null}
-                    <CardHeader>
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <CardTitle className="text-xl font-bold text-foreground">{project.title || 'Untitled'}</CardTitle>
-                        <Badge variant="secondary" className="px-3 py-1 rounded-lg text-xs font-semibold">
-                          {project.type || 'N/A'}
-                        </Badge>
+                    <div className="p-6">
+                      <div className="flex items-start justify-between gap-2 mb-3">
+                        <h3 className="text-xl font-bold">{project.title || 'Untitled'}</h3>
+                        <Badge variant="secondary" className="shrink-0">{project.type || 'N/A'}</Badge>
                       </div>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-base text-muted-foreground">
+                      <p className="text-muted-foreground">
                         {project.short_description ||
                           (project.full_description
                             ? project.full_description.slice(0, 120) + (project.full_description.length > 120 ? '...' : '')
                             : 'No description available.')}
                       </p>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 </MovingBorder>
               </Link>
             </motion.div>

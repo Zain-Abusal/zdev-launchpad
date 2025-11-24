@@ -18,6 +18,7 @@ import BlogPost from "./pages/blog/[slug]";
 import Contact from "./pages/Contact";
 import GetStarted from "./pages/GetStarted";
 import DocsEmbed from "./pages/DocsEmbed";
+import Search from "./pages/Search";
 import Terms from "./pages/legal/Terms";
 import Privacy from "./pages/legal/Privacy";
 import GDPR from "./pages/legal/GDPR";
@@ -100,6 +101,7 @@ const App = () => (
               <Route path="/contact" element={<Contact />} />
               <Route path="/get-started" element={<GetStarted />} />
               <Route path="/docs-embed" element={<DocsEmbed />} />
+              <Route path="/search" element={<Search />} />
               <Route path="/legal/terms" element={<Terms />} />
               <Route path="/legal/privacy" element={<Privacy />} />
               <Route path="/legal/gdpr" element={<GDPR />} />
