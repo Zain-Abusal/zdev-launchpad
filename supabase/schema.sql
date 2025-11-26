@@ -1,311 +1,216 @@
--- Failsafe SaaS Platform Schema: All referenced tables
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "citext";
 
--- Blog Posts
-CREATE TABLE IF NOT EXISTS blog_posts (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  title TEXT NOT NULL,
-  content TEXT NOT NULL,
-  tags TEXT[],
-  slug TEXT NOT NULL,
-  published BOOLEAN DEFAULT false,
-  created_at TIMESTAMP DEFAULT now(),
-  updated_at TIMESTAMP
+CREATE TABLE users (
+  id              uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  email           citext UNIQUE NOT NULL,
+  password_hash   text NOT NULL,
+  name            text NOT NULL,
+  avatar_url      text,
+  is_active       boolean NOT NULL DEFAULT true,
+  is_staff        boolean NOT NULL DEFAULT false,
+  staff_role      text,
+  last_login_at   timestamptz,
+  created_at      timestamptz NOT NULL DEFAULT now(),
+  updated_at      timestamptz NOT NULL DEFAULT now()
 );
 
--- Announcements
-CREATE TABLE IF NOT EXISTS announcements (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  text TEXT NOT NULL,
-  active BOOLEAN DEFAULT false,
-  created_at TIMESTAMP DEFAULT now()
+CREATE TABLE organizations (
+  id              uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name            text NOT NULL,
+  slug            text UNIQUE NOT NULL,
+  created_at      timestamptz NOT NULL DEFAULT now(),
+  updated_at      timestamptz NOT NULL DEFAULT now()
 );
 
--- Settings
-CREATE TABLE IF NOT EXISTS settings (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  site_title TEXT,
-  logo_url TEXT,
-  favicon_url TEXT,
-  theme TEXT DEFAULT 'system',
-  smtp_host TEXT,
-  smtp_user TEXT,
-  smtp_pass TEXT,
-  deployment TEXT,
-  created_at TIMESTAMP DEFAULT now()
+CREATE TABLE organization_members (
+  organization_id uuid NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  user_id         uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  role            text NOT NULL DEFAULT 'org_member',
+  created_at      timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (organization_id, user_id)
 );
 
--- Projects
-CREATE TABLE IF NOT EXISTS projects (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  title TEXT NOT NULL,
-  short_description TEXT,
-  full_description TEXT,
-  image_url TEXT,
-  demo_url TEXT,
-  tech_stack TEXT[],
-  type TEXT,
-  featured BOOLEAN DEFAULT false,
-  created_at TIMESTAMP DEFAULT now(),
-  updated_at TIMESTAMP
+CREATE TABLE apps (
+  id              uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  organization_id uuid NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  name            text NOT NULL,
+  slug            text NOT NULL,
+  description     text,
+  status          text NOT NULL DEFAULT 'sandbox',
+  default_rate_limit_per_min integer DEFAULT 60,
+  created_at      timestamptz NOT NULL DEFAULT now(),
+  updated_at      timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (organization_id, slug)
 );
 
--- Clients
-CREATE TABLE IF NOT EXISTS clients (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  business_name TEXT,
-  contact_email TEXT NOT NULL,
-  status TEXT,
-  user_id UUID,
-  created_at TIMESTAMP DEFAULT now(),
-  updated_at TIMESTAMP
+CREATE INDEX idx_apps_org ON apps (organization_id);
+
+CREATE TABLE api_keys (
+  id              uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  organization_id uuid NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  user_id         uuid REFERENCES users(id) ON DELETE SET NULL,
+  app_id          uuid REFERENCES apps(id) ON DELETE SET NULL,
+  name            text NOT NULL,
+  key_prefix      text NOT NULL,
+  key_hash        text NOT NULL,
+  scopes          text[] NOT NULL,
+  status          text NOT NULL DEFAULT 'active',
+  expires_at      timestamptz,
+  last_used_at    timestamptz,
+  created_at      timestamptz NOT NULL DEFAULT now(),
+  updated_at      timestamptz NOT NULL DEFAULT now()
 );
 
--- Licenses
-CREATE TABLE IF NOT EXISTS licenses (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  license_key TEXT NOT NULL,
-  client_project_id UUID,
-  status TEXT,
-  max_domains INT,
-  expires_at TIMESTAMP,
-  created_at TIMESTAMP DEFAULT now(),
-  updated_at TIMESTAMP,
-  FOREIGN KEY (client_project_id) REFERENCES client_projects(id)
+CREATE INDEX idx_api_keys_org ON api_keys (organization_id);
+CREATE INDEX idx_api_keys_prefix ON api_keys (key_prefix);
+CREATE INDEX idx_api_keys_status ON api_keys (status);
+
+CREATE TABLE plans (
+  id              uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name            text NOT NULL,
+  slug            text UNIQUE NOT NULL,
+  monthly_price_cents integer NOT NULL,
+  request_limit_per_month integer,
+  features        text[] NOT NULL,
+  is_active       boolean NOT NULL DEFAULT true,
+  created_at      timestamptz NOT NULL DEFAULT now(),
+  updated_at      timestamptz NOT NULL DEFAULT now()
 );
 
--- License Logs
-CREATE TABLE IF NOT EXISTS license_logs (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  license_id UUID,
-  domain TEXT,
-  created_at TIMESTAMP DEFAULT now(),
-  last_checked TIMESTAMP,
-  FOREIGN KEY (license_id) REFERENCES licenses(id)
+CREATE TABLE subscriptions (
+  id              uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  organization_id uuid NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  plan_id         uuid NOT NULL REFERENCES plans(id),
+  status          text NOT NULL,
+  current_period_start timestamptz NOT NULL,
+  current_period_end   timestamptz NOT NULL,
+  cancel_at_period_end boolean NOT NULL DEFAULT false,
+  external_customer_id text,
+  created_at      timestamptz NOT NULL DEFAULT now(),
+  updated_at      timestamptz NOT NULL DEFAULT now()
 );
 
--- License Events
-CREATE TABLE IF NOT EXISTS license_events (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  license_id UUID,
-  event_type TEXT,
-  domain TEXT,
-  error_code TEXT,
-  message TEXT,
-  metadata JSONB,
-  created_at TIMESTAMP DEFAULT now(),
-  FOREIGN KEY (license_id) REFERENCES licenses(id)
+CREATE TABLE invoices (
+  id              uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  organization_id uuid NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  subscription_id uuid REFERENCES subscriptions(id) ON DELETE SET NULL,
+  amount_cents    integer NOT NULL,
+  currency        text NOT NULL DEFAULT 'usd',
+  status          text NOT NULL,
+  billing_period_start timestamptz NOT NULL,
+  billing_period_end   timestamptz NOT NULL,
+  external_invoice_id  text,
+  created_at      timestamptz NOT NULL DEFAULT now(),
+  updated_at      timestamptz NOT NULL DEFAULT now()
 );
 
--- License Domains
-CREATE TABLE IF NOT EXISTS license_domains (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  license_id UUID,
-  domain TEXT,
-  first_seen TIMESTAMP,
-  last_seen TIMESTAMP,
-  FOREIGN KEY (license_id) REFERENCES licenses(id)
+CREATE TABLE request_logs (
+  id              bigserial PRIMARY KEY,
+  organization_id uuid REFERENCES organizations(id) ON DELETE CASCADE,
+  app_id          uuid REFERENCES apps(id) ON DELETE SET NULL,
+  api_key_id      uuid REFERENCES api_keys(id) ON DELETE SET NULL,
+  path            text NOT NULL,
+  method          text NOT NULL,
+  status_code     integer NOT NULL,
+  latency_ms      integer NOT NULL,
+  ip_address      inet,
+  user_agent      text,
+  occurred_at     timestamptz NOT NULL DEFAULT now()
 );
 
--- Client Projects
-CREATE TABLE IF NOT EXISTS client_projects (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  client_id UUID,
-  project_id UUID,
-  license_key TEXT,
-  private_notes TEXT,
-  created_at TIMESTAMP DEFAULT now(),
-  FOREIGN KEY (client_id) REFERENCES clients(id),
-  FOREIGN KEY (project_id) REFERENCES projects(id)
+CREATE INDEX idx_request_logs_org_time ON request_logs (organization_id, occurred_at);
+CREATE INDEX idx_request_logs_status ON request_logs (status_code);
+
+CREATE TABLE metrics_events (
+  id              bigserial PRIMARY KEY,
+  organization_id uuid REFERENCES organizations(id) ON DELETE CASCADE,
+  app_id          uuid REFERENCES apps(id) ON DELETE SET NULL,
+  metric_type     text NOT NULL,
+  value           numeric NOT NULL,
+  occurred_at     timestamptz NOT NULL DEFAULT now()
 );
 
--- Support Tickets
-CREATE TABLE IF NOT EXISTS support_tickets (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  client_id UUID,
-  subject TEXT,
-  status TEXT,
-  created_at TIMESTAMP DEFAULT now(),
-  updated_at TIMESTAMP,
-  FOREIGN KEY (client_id) REFERENCES clients(id)
+CREATE INDEX idx_metrics_type_time ON metrics_events (metric_type, occurred_at);
+
+CREATE TABLE audit_logs (
+  id              bigserial PRIMARY KEY,
+  organization_id uuid REFERENCES organizations(id) ON DELETE SET NULL,
+  actor_user_id   uuid REFERENCES users(id) ON DELETE SET NULL,
+  actor_api_key_id uuid REFERENCES api_keys(id) ON DELETE SET NULL,
+  action          text NOT NULL,
+  resource_type   text NOT NULL,
+  resource_id     text,
+  metadata        jsonb,
+  created_at      timestamptz NOT NULL DEFAULT now()
 );
 
--- Ticket Messages
-CREATE TABLE IF NOT EXISTS ticket_messages (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  ticket_id UUID,
-  sender_id UUID,
-  message TEXT,
-  created_at TIMESTAMP DEFAULT now(),
-  FOREIGN KEY (ticket_id) REFERENCES support_tickets(id)
+CREATE INDEX idx_audit_org_time ON audit_logs (organization_id, created_at);
+
+CREATE TABLE blog_posts (
+  id              uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  slug            text UNIQUE NOT NULL,
+  title           text NOT NULL,
+  excerpt         text,
+  content_md      text NOT NULL,
+  author_id       uuid REFERENCES users(id) ON DELETE SET NULL,
+  tags            text[],
+  published_at    timestamptz,
+  is_published    boolean NOT NULL DEFAULT false,
+  created_at      timestamptz NOT NULL DEFAULT now(),
+  updated_at      timestamptz NOT NULL DEFAULT now()
 );
 
--- Ticket Attachments
-CREATE TABLE IF NOT EXISTS ticket_attachments (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  ticket_id UUID,
-  file_url TEXT,
-  uploaded_at TIMESTAMP DEFAULT now(),
-  FOREIGN KEY (ticket_id) REFERENCES support_tickets(id)
+CREATE TABLE support_tickets (
+  id              uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  organization_id uuid REFERENCES organizations(id) ON DELETE SET NULL,
+  user_id         uuid REFERENCES users(id) ON DELETE SET NULL,
+  name            text,
+  email           text NOT NULL,
+  subject         text NOT NULL,
+  message         text NOT NULL,
+  category        text NOT NULL,
+  status          text NOT NULL DEFAULT 'open',
+  internal_notes  text,
+  created_at      timestamptz NOT NULL DEFAULT now(),
+  updated_at      timestamptz NOT NULL DEFAULT now()
 );
 
--- Billing
-CREATE TABLE IF NOT EXISTS billing (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  client_id UUID,
-  amount NUMERIC,
-  currency TEXT,
-  status TEXT,
-  invoice_url TEXT,
-  created_at TIMESTAMP DEFAULT now(),
-  FOREIGN KEY (client_id) REFERENCES clients(id)
+CREATE TABLE status_incidents (
+  id              uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title           text NOT NULL,
+  description     text NOT NULL,
+  status          text NOT NULL,
+  impact          text NOT NULL,
+  started_at      timestamptz NOT NULL,
+  resolved_at     timestamptz,
+  created_at      timestamptz NOT NULL DEFAULT now()
 );
 
--- Activity Logs
-CREATE TABLE IF NOT EXISTS activity_logs (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID,
-  action TEXT,
-  details TEXT,
-  created_at TIMESTAMP DEFAULT now()
+CREATE TABLE notifications (
+  id              uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id         uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  type            text NOT NULL,
+  payload         jsonb NOT NULL,
+  read_at         timestamptz,
+  created_at      timestamptz NOT NULL DEFAULT now()
 );
 
--- Portfolio
-CREATE TABLE IF NOT EXISTS portfolio (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  title TEXT NOT NULL,
-  short_description TEXT,
-  full_description TEXT,
-  image_url TEXT,
-  demo_url TEXT,
-  tech_stack TEXT[],
-  featured BOOLEAN DEFAULT false,
-  created_at TIMESTAMP DEFAULT now(),
-  updated_at TIMESTAMP
+CREATE TABLE organization_settings (
+  organization_id uuid PRIMARY KEY REFERENCES organizations(id) ON DELETE CASCADE,
+  billing_email   text,
+  timezone        text DEFAULT 'UTC',
+  locale          text DEFAULT 'en',
+  theme           text DEFAULT 'system',
+  created_at      timestamptz NOT NULL DEFAULT now(),
+  updated_at      timestamptz NOT NULL DEFAULT now()
 );
 
--- Downloads
-CREATE TABLE IF NOT EXISTS downloads (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  client_id UUID,
-  project_id UUID,
-  file_url TEXT,
-  downloaded_at TIMESTAMP DEFAULT now(),
-  FOREIGN KEY (client_id) REFERENCES clients(id),
-  FOREIGN KEY (project_id) REFERENCES projects(id)
+CREATE TABLE platform_settings (
+  id              int PRIMARY KEY DEFAULT 1,
+  brand_name      text NOT NULL DEFAULT 'My API Platform',
+  support_email   text,
+  docs_url        text,
+  created_at      timestamptz NOT NULL DEFAULT now(),
+  updated_at      timestamptz NOT NULL DEFAULT now()
 );
-
--- Docs (for legal pages and documentation)
-CREATE TABLE IF NOT EXISTS docs (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  slug TEXT NOT NULL,
-  title TEXT,
-  content TEXT NOT NULL,
-  category TEXT,
-  is_public BOOLEAN DEFAULT true,
-  order_index INT,
-  created_at TIMESTAMP DEFAULT now(),
-  updated_at TIMESTAMP
-);
-
--- Chat Messages (Support)
-CREATE TABLE IF NOT EXISTS chat_messages (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  sender_id UUID,
-  sender_email TEXT,
-  sender_name TEXT,
-  is_from_client BOOLEAN,
-  message TEXT,
-  project_id UUID,
-  license_id UUID,
-  status TEXT,
-  read_at TIMESTAMP,
-  created_at TIMESTAMP DEFAULT now(),
-  FOREIGN KEY (project_id) REFERENCES projects(id),
-  FOREIGN KEY (license_id) REFERENCES licenses(id)
-);
--- Blog Posts
-CREATE TABLE IF NOT EXISTS blog_posts (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  title TEXT NOT NULL,
-  content TEXT NOT NULL,
-  tags TEXT[],
-  slug TEXT NOT NULL,
-  published BOOLEAN DEFAULT false,
-  created_at TIMESTAMP DEFAULT now(),
-  updated_at TIMESTAMP
-);
-
--- Announcements
-CREATE TABLE IF NOT EXISTS announcements (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  text TEXT NOT NULL,
-  active BOOLEAN DEFAULT false,
-  created_at TIMESTAMP DEFAULT now()
-);
-
--- Settings
-CREATE TABLE IF NOT EXISTS settings (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  site_title TEXT,
-  logo_url TEXT,
-  favicon_url TEXT,
-  theme TEXT DEFAULT 'system',
-  smtp_host TEXT,
-  smtp_user TEXT,
-  smtp_pass TEXT,
-  deployment TEXT,
-  created_at TIMESTAMP DEFAULT now()
-);
-
--- License Logs
-CREATE TABLE IF NOT EXISTS license_logs (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  license_id UUID,
-  domain TEXT,
-  created_at TIMESTAMP DEFAULT now(),
-  last_checked TIMESTAMP,
-  FOREIGN KEY (license_id) REFERENCES licenses(id)
-);
-
--- License Events
-CREATE TABLE IF NOT EXISTS license_events (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  license_id UUID,
-  event_type TEXT,
-  domain TEXT,
-  error_code TEXT,
-  message TEXT,
-  metadata JSONB,
-  created_at TIMESTAMP DEFAULT now(),
-  FOREIGN KEY (license_id) REFERENCES licenses(id)
-);
-
--- License Domains
-CREATE TABLE IF NOT EXISTS license_domains (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  license_id UUID,
-  domain TEXT,
-  first_seen TIMESTAMP,
-  last_seen TIMESTAMP,
-  FOREIGN KEY (license_id) REFERENCES licenses(id)
-);
-
--- Support Messages (Chat)
-CREATE TABLE IF NOT EXISTS chat_messages (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  sender_id UUID,
-  sender_email TEXT,
-  sender_name TEXT,
-  is_from_client BOOLEAN,
-  message TEXT,
-  project_id UUID,
-  license_id UUID,
-  status TEXT,
-  read_at TIMESTAMP,
-  created_at TIMESTAMP DEFAULT now(),
-  FOREIGN KEY (project_id) REFERENCES projects(id),
-  FOREIGN KEY (license_id) REFERENCES licenses(id)
-);
-
--- Legal Pages (docs table used for legal content)
--- Add rows with slug: 'tos', 'privacy', 'gdpr' and content field for each legal page.
