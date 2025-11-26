@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
 const DocsEmbed = () => {
   useEffect(() => {
-    window.location.replace('https://docs.shopzyra.site');
+    const docsUrl = import.meta.env.VITE_MINTLIFY_DOCS_URL || "https://docs.example.com";
+    window.location.replace(docsUrl);
   }, []);
   return null;
 };

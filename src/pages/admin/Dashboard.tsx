@@ -1,94 +1,164 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { AdminLayout } from '@/components/layout/AdminLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, FolderKanban, FileText, Inbox } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from "@tanstack/react-query";
+import { AdminLayout } from "./Layout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { api } from "@/lib/api";
+
+interface OverviewResponse {
+  totals: { users: number; organizations: number; apiKeys: number; requests24h: number; mrr: number };
+  latestUsers: { id: string; email: string; created_at: string; is_staff?: boolean }[];
+  latestOrganizations: { id: string; name: string; plan: string; created_at: string }[];
+  incidents: { id: string; title: string; status: string; impact: string; started_at: string }[];
+}
 
 const AdminDashboard = () => {
-  const [stats, setStats] = useState({
-    clients: 0,
-    projects: 0,
-    blogPosts: 0,
-    requests: 0,
+  const { data, isLoading, error } = useQuery<OverviewResponse>({
+    queryKey: ["admin-overview"],
+    queryFn: () => api.get("/api/admin/overview"),
   });
-
-  useEffect(() => {
-    fetchStats();
-  }, []);
-
-  const fetchStats = async () => {
-    const [clients, projects, posts, requests] = await Promise.all([
-      supabase.from('clients').select('*', { count: 'exact', head: true }),
-      supabase.from('projects').select('*', { count: 'exact', head: true }),
-      supabase.from('blog_posts').select('*', { count: 'exact', head: true }),
-      supabase.from('project_requests').select('*', { count: 'exact', head: true }),
-    ]);
-
-    setStats({
-      clients: clients.count || 0,
-      projects: projects.count || 0,
-      blogPosts: posts.count || 0,
-      requests: requests.count || 0,
-    });
-  };
-
-  const statCards = [
-    { label: 'Total Clients', value: stats.clients, icon: Users, color: 'text-blue-500' },
-    { label: 'Active Projects', value: stats.projects, icon: FolderKanban, color: 'text-green-500' },
-    { label: 'Blog Posts', value: stats.blogPosts, icon: FileText, color: 'text-purple-500' },
-    { label: 'Open Requests', value: stats.requests, icon: Inbox, color: 'text-orange-500' },
-  ];
 
   return (
     <AdminLayout>
-      <div className="space-y-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-          <p className="text-muted-foreground">
-            Overview of your business metrics and activity
-          </p>
-        </motion.div>
+      <div className="grid gap-4 md:grid-cols-3">
+        {isLoading && Array.from({ length: 5 }).map((_, idx) => <Skeleton key={idx} className="h-28" />)}
+        {data && (
+          <>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm text-muted-foreground">Total users</CardTitle>
+              </CardHeader>
+              <CardContent className="text-2xl font-semibold">{data.totals.users}</CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm text-muted-foreground">Organizations</CardTitle>
+              </CardHeader>
+              <CardContent className="text-2xl font-semibold">{data.totals.organizations}</CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm text-muted-foreground">API keys</CardTitle>
+              </CardHeader>
+              <CardContent className="text-2xl font-semibold">{data.totals.apiKeys}</CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm text-muted-foreground">Requests 24h</CardTitle>
+              </CardHeader>
+              <CardContent className="text-2xl font-semibold">{data.totals.requests24h.toLocaleString()}</CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm text-muted-foreground">MRR</CardTitle>
+              </CardHeader>
+              <CardContent className="text-2xl font-semibold">${data.totals.mrr.toFixed(0)}</CardContent>
+            </Card>
+          </>
+        )}
+      </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {statCards.map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">{stat.label}</CardTitle>
-                    <Icon className={`h-4 w-4 ${stat.color}`} />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{stat.value}</div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            );
-          })}
-        </div>
+      {error && <p className="text-sm text-destructive">Unable to load admin overview.</p>}
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Latest users</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isLoading && <Skeleton className="h-32" />}
+            {data && (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Signed up</TableHead>
+                    <TableHead>Role</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data.latestUsers.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        <Badge variant={user.is_staff ? "secondary" : "outline"}>
+                          {user.is_staff ? "Staff" : "Customer"}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
+            <CardTitle>Latest organizations</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Use the sidebar to navigate to different sections of the admin panel.
-            </p>
+            {isLoading && <Skeleton className="h-32" />}
+            {data && (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Plan</TableHead>
+                    <TableHead>Created</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data.latestOrganizations.map((org) => (
+                    <TableRow key={org.id}>
+                      <TableCell>{org.name}</TableCell>
+                      <TableCell>
+                        <Badge variant={org.plan === "enterprise" ? "secondary" : "outline"}>{org.plan}</Badge>
+                      </TableCell>
+                      <TableCell>{new Date(org.created_at).toLocaleDateString()}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Open incidents</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isLoading && <Skeleton className="h-24" />}
+          {data && (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Impact</TableHead>
+                  <TableHead>Started</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data.incidents.map((incident) => (
+                  <TableRow key={incident.id}>
+                    <TableCell>{incident.title}</TableCell>
+                    <TableCell>
+                      <Badge variant={incident.status === "resolved" ? "outline" : "secondary"}>{incident.status}</Badge>
+                    </TableCell>
+                    <TableCell>{incident.impact}</TableCell>
+                    <TableCell>{new Date(incident.started_at).toLocaleString()}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
     </AdminLayout>
   );
 };

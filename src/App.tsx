@@ -2,56 +2,48 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 
-// Public Pages
-import Home from "./pages/Home";
-import Services from "./pages/Services";
-import Portfolio from "./pages/Portfolio";
-import PortfolioDetail from "./pages/PortfolioDetail";
-import Demos from "./pages/Demos";
-import Blog from "./pages/Blog";
-import BlogPost from "./pages/blog/[slug]";
-import Contact from "./pages/Contact";
-import GetStarted from "./pages/GetStarted";
-import DocsEmbed from "./pages/DocsEmbed";
-import Search from "./pages/Search";
+import Home from "./pages/public/Home";
+import Pricing from "./pages/public/Pricing";
+import Features from "./pages/public/Features";
+import BlogList from "./pages/public/BlogList";
+import BlogPost from "./pages/public/BlogPost";
+import StatusPage from "./pages/public/StatusPage";
+import ContactPage from "./pages/public/ContactPage";
 import Terms from "./pages/legal/Terms";
 import Privacy from "./pages/legal/Privacy";
-import GDPR from "./pages/legal/GDPR";
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
 
-// Auth Pages
-import SignIn from "./pages/auth/SignIn";
-import SignUp from "./pages/auth/SignUp";
-import Callback from "./pages/auth/Callback";
+import ClientDashboard from "./pages/app/Dashboard";
+import ApiKeys from "./pages/app/ApiKeys";
+import Apps from "./pages/app/Apps";
+import Billing from "./pages/app/Billing";
+import Logs from "./pages/app/Logs";
+import Team from "./pages/app/Team";
+import Settings from "./pages/app/Settings";
+import Help from "./pages/app/Help";
 
-// Client Pages
-import ClientDashboard from "./pages/client/Dashboard";
-import ClientProjects from "./pages/client/Projects";
-import ClientProjectDetail from "./pages/client/ProjectDetail";
-import ClientProfile from "./pages/client/Profile";
-import ClientBilling from "./pages/client/Billing";
-
-// Admin Pages
 import AdminDashboard from "./pages/admin/Dashboard";
-import AdminClients from "./pages/admin/Clients";
-import AdminProjects from "./pages/admin/AdminProjects";
-import AdminBlog from "./pages/admin/Blog";
-import AdminRequests from "./pages/admin/Requests";
-import AdminSettings from "./pages/admin/Settings";
-import AdminPortfolio from "./pages/admin/Portfolio";
-import AdminDemos from "./pages/admin/Demos";
-import AdminDocsLinks from "./pages/admin/DocsLinks";
-import AdminLicenses from "./pages/admin/Licenses";
-import AdminSupport from "./pages/admin/Support";
-import AdminCodeEditor from "./pages/admin/CodeEditor";
-import AdminLogs from "./pages/admin/Logs";
-import AdminAnnouncement from "./pages/admin/Announcement";
-import MarketingDashboard from "./pages/admin/MarketingDashboard";
-
+import Users from "./pages/admin/Users";
+import Organizations from "./pages/admin/Organizations";
+import AdminApiKeys from "./pages/admin/AdminApiKeys";
+import AdminLogs from "./pages/admin/AdminLogs";
+import AuditLog from "./pages/admin/AuditLog";
+import Plans from "./pages/admin/Plans";
+import Subscriptions from "./pages/admin/Subscriptions";
+import Invoices from "./pages/admin/Invoices";
+import AdminBlog from "./pages/admin/AdminBlog";
+import SupportTickets from "./pages/admin/SupportTickets";
+import SystemStatus from "./pages/admin/SystemStatus";
+import AdminSettings from "./pages/admin/AdminSettings";
 import NotFound from "./pages/NotFound";
+import DocsEmbed from "./pages/DocsEmbed";
 
 const queryClient = new QueryClient();
 
@@ -64,55 +56,47 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
-              {/* Public Routes */}
               <Route path="/" element={<Home />} />
-              <Route path="/services" element={<Services />} />
-              <Route path="/portfolio" element={<Portfolio />} />
-              <Route path="/portfolio/:id" element={<PortfolioDetail />} />
-              <Route path="/demos" element={<Demos />} />
-              <Route path="/blog" element={<Blog />} />
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/features" element={<Features />} />
+              <Route path="/blog" element={<BlogList />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/get-started" element={<GetStarted />} />
-              <Route path="/docs-embed" element={<DocsEmbed />} />
-              <Route path="/search" element={<Search />} />
+              <Route path="/status" element={<StatusPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/docs" element={<DocsEmbed />} />
               <Route path="/legal/terms" element={<Terms />} />
               <Route path="/legal/privacy" element={<Privacy />} />
-              <Route path="/legal/gdpr" element={<GDPR />} />
 
-              {/* Auth Routes */}
-              <Route path="/auth/sign-in" element={<SignIn />} />
-              <Route path="/auth/sign-up" element={<SignUp />} />
-              <Route path="/auth/callback" element={<Callback />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-              {/* Client Routes */}
-              <Route path="/client" element={<ClientDashboard />} />
-              <Route path="/client/projects" element={<ClientProjects />} />
-              <Route path="/client/projects/:id" element={<ClientProjectDetail />} />
-              <Route path="/client/profile" element={<ClientProfile />} />
-              <Route path="/client/billing" element={<ClientBilling />} />
+              <Route path="/app/dashboard" element={<ClientDashboard />} />
+              <Route path="/app/api-keys" element={<ApiKeys />} />
+              <Route path="/app/apps" element={<Apps />} />
+              <Route path="/app/billing" element={<Billing />} />
+              <Route path="/app/logs" element={<Logs />} />
+              <Route path="/app/team" element={<Team />} />
+              <Route path="/app/settings" element={<Settings />} />
+              <Route path="/app/help" element={<Help />} />
+              <Route path="/app" element={<Navigate to="/app/dashboard" replace />} />
 
-              {/* Admin Routes */}
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/clients" element={<AdminClients />} />
-              <Route path="/admin/projects" element={<AdminProjects />} />
-              <Route path="/admin/blog" element={<AdminBlog />} />
-              <Route path="/admin/requests" element={<AdminRequests />} />
-              <Route path="/admin/settings" element={<AdminSettings />} />
-              <Route path="/admin/marketing" element={<MarketingDashboard />} />
-              
-              {/* All admin pages */}
-              <Route path="/admin/portfolio" element={<AdminPortfolio />} />
-              <Route path="/admin/demos" element={<AdminDemos />} />
-              <Route path="/admin/docs-links" element={<AdminDocsLinks />} />
-              <Route path="/admin/licenses" element={<AdminLicenses />} />
-              <Route path="/admin/support" element={<AdminSupport />} />
-              <Route path="/admin/editor" element={<AdminCodeEditor />} />
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/users" element={<Users />} />
+              <Route path="/admin/organizations" element={<Organizations />} />
+              <Route path="/admin/api-keys" element={<AdminApiKeys />} />
               <Route path="/admin/logs" element={<AdminLogs />} />
-              <Route path="/admin/announcement" element={<AdminAnnouncement />} />
+              <Route path="/admin/audit-log" element={<AuditLog />} />
+              <Route path="/admin/plans" element={<Plans />} />
+              <Route path="/admin/subscriptions" element={<Subscriptions />} />
+              <Route path="/admin/invoices" element={<Invoices />} />
               <Route path="/admin/blog" element={<AdminBlog />} />
+              <Route path="/admin/support-tickets" element={<SupportTickets />} />
+              <Route path="/admin/status" element={<SystemStatus />} />
+              <Route path="/admin/settings" element={<AdminSettings />} />
+              <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
 
-              {/* 404 */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
