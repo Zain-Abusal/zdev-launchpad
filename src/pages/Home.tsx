@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import AnimatedCard from '@/components/ui/AnimatedCard';
 import NewsletterSignup from '@/components/ui/NewsletterSignup';
+import { BentoGrid, BentoGridItem } from '@/components/ui/bento-grid';
 import { Code2, Layout, Terminal, ArrowRight, Check } from 'lucide-react';
 
 const Home = () => {
@@ -83,7 +84,7 @@ const Home = () => {
                 </div>
               </Card>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -103,9 +104,9 @@ const Home = () => {
             </p>
           </motion.div>
 
-          <BentoGrid className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {services.map((service, index) => (
-              <BentoGridItem
+              <motion.div
                 key={service.title}
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -119,7 +120,7 @@ const Home = () => {
                 </AnimatedCard>
               </motion.div>
             ))}
-          </BentoGrid>
+          </div>
         </div>
       </section>
 
