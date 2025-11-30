@@ -50,12 +50,13 @@ const Portfolio = () => {
           {filters.map((f) => (
             <motion.div
               key={f}
-              variant={filter === f ? 'default' : 'outline'}
-              className={`cursor-pointer px-5 py-2 text-base font-semibold rounded-xl shadow-md transition-all duration-200 ${filter === f ? 'bg-primary text-white' : 'bg-white/80 text-primary border border-primary/30'}`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`cursor-pointer px-5 py-2 text-base font-semibold rounded-xl shadow-md transition-all duration-200 ${filter === f ? 'bg-primary text-primary-foreground' : 'bg-card text-foreground border border-border'}`}
               onClick={() => setFilter(f)}
             >
               {f}
-            </Badge>
+            </motion.div>
           ))}
         </div>
 

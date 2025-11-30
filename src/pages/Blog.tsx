@@ -80,8 +80,8 @@ const Blog = () => {
                         ))}
                       </div>
                     )}
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               </Link>
             </motion.div>
           ))}

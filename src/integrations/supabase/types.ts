@@ -59,6 +59,33 @@ export type Database = {
         }
         Relationships: []
       }
+      banner_settings: {
+        Row: {
+          enabled: boolean | null
+          id: string
+          link: string | null
+          text: string | null
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          enabled?: boolean | null
+          id?: string
+          link?: string | null
+          text?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          enabled?: boolean | null
+          id?: string
+          link?: string | null
+          text?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       billing: {
         Row: {
           amount: number | null
@@ -262,6 +289,69 @@ export type Database = {
           status?: string | null
           updated_at?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      contact_submissions: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          message: string
+          name: string
+          status: string | null
+          subject: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          message: string
+          name: string
+          status?: string | null
+          subject?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          status?: string | null
+          subject?: string | null
+        }
+        Relationships: []
+      }
+      demos: {
+        Row: {
+          created_at: string | null
+          demo_url: string | null
+          description: string | null
+          id: string
+          published: boolean | null
+          thumbnail: string | null
+          title: string
+          type: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          demo_url?: string | null
+          description?: string | null
+          id?: string
+          published?: boolean | null
+          thumbnail?: string | null
+          title: string
+          type?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          demo_url?: string | null
+          description?: string | null
+          id?: string
+          published?: boolean | null
+          thumbnail?: string | null
+          title?: string
+          type?: string | null
         }
         Relationships: []
       }
@@ -516,6 +606,68 @@ export type Database = {
           },
         ]
       }
+      maintenance_mode: {
+        Row: {
+          enabled: boolean | null
+          id: string
+          message: string | null
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          enabled?: boolean | null
+          id?: string
+          message?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          enabled?: boolean | null
+          id?: string
+          message?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      payment_notifications: {
+        Row: {
+          amount: number
+          created_at: string | null
+          id: string
+          payment_link: string
+          project_id: string | null
+          read: boolean | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          id?: string
+          payment_link: string
+          project_id?: string | null
+          read?: boolean | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          id?: string
+          payment_link?: string
+          project_id?: string | null
+          read?: boolean | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_notifications_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       portfolio: {
         Row: {
           created_at: string | null
@@ -526,6 +678,7 @@ export type Database = {
           id: string
           image_url: string | null
           images: string[] | null
+          published: boolean | null
           short_description: string | null
           tech_stack: string[] | null
           title: string
@@ -541,6 +694,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           images?: string[] | null
+          published?: boolean | null
           short_description?: string | null
           tech_stack?: string[] | null
           title: string
@@ -556,6 +710,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           images?: string[] | null
+          published?: boolean | null
           short_description?: string | null
           tech_stack?: string[] | null
           title?: string
@@ -567,29 +722,67 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          country: string | null
           created_at: string | null
           full_name: string | null
           id: string
-          role: string | null
           updated_at: string | null
+          username: string | null
         }
         Insert: {
           avatar_url?: string | null
+          country?: string | null
           created_at?: string | null
           full_name?: string | null
           id: string
-          role?: string | null
           updated_at?: string | null
+          username?: string | null
         }
         Update: {
           avatar_url?: string | null
+          country?: string | null
           created_at?: string | null
           full_name?: string | null
           id?: string
-          role?: string | null
           updated_at?: string | null
+          username?: string | null
         }
         Relationships: []
+      }
+      project_access: {
+        Row: {
+          created_at: string | null
+          has_paid: boolean | null
+          id: string
+          payment_date: string | null
+          project_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          has_paid?: boolean | null
+          id?: string
+          payment_date?: string | null
+          project_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          has_paid?: boolean | null
+          id?: string
+          payment_date?: string | null
+          project_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_access_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       project_requests: {
         Row: {
@@ -810,18 +1003,50 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      get_user_role: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       log_activity: {
         Args: { p_action: string; p_details?: string; p_user_id: string }
         Returns: string
       }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "client"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -948,6 +1173,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "client"],
+    },
   },
 } as const
