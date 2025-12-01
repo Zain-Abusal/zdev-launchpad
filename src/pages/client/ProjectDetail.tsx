@@ -7,14 +7,25 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { FileText, Download, MessageSquare } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { logActivity } from '@/lib/activityLogger';
+import { useAuth } from '@/contexts/AuthContext';
 
 const ClientProjectDetail = () => {
   const { id } = useParams();
   const [project, setProject] = useState<any>(null);
+  const { user } = useAuth();
+  const [logged, setLogged] = useState(false);
 
   useEffect(() => {
     if (id) fetchProject();
   }, [id]);
+
+  useEffect(() => {
+    if (user && project && !logged) {
+      logActivity({ action: 'client_project_view', details: `Project: ${project.title}`, userId: user.id });
+      setLogged(true);
+    }
+  }, [user, project, logged]);
 
   const fetchProject = async () => {
     const { data } = await supabase
@@ -122,7 +133,7 @@ const ClientProjectDetail = () => {
               <CardContent className="space-y-4">
                 <div>
                   <h4 className="font-semibold mb-2">License Key</h4>
-                  <code className="text-sm bg-muted px-3 py-2 rounded block">••••-••••-••••-{Math.random().toString(36).substr(2, 4).toUpperCase()}</code>
+                  <code className="text-sm bg-muted px-3 py-2 rounded block">XXXX-XXXX-XXXX-XXXX</code>
                 </div>
                 <div>
                   <h4 className="font-semibold mb-2">Status</h4>

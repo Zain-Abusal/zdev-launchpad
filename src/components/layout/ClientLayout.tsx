@@ -46,7 +46,7 @@ export const ClientLayout = ({ children }: ClientLayoutProps) => {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background">
       {active && announcement && (
         <div className="w-full bg-primary text-white text-center py-2 font-semibold">
           {announcement}
@@ -54,7 +54,7 @@ export const ClientLayout = ({ children }: ClientLayoutProps) => {
       )}
       <div className="flex flex-1">
         <ClientSidebar />
-        <main className="flex-1 p-8 bg-background overflow-auto">
+        <main className="flex-1 overflow-auto p-6 md:p-8 page-section">
           {children}
         </main>
       </div>

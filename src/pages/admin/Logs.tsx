@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -6,6 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { Activity, Database, Shield, MessageSquare } from 'lucide-react';
 import { format } from 'date-fns';
+import { logActivity } from '@/lib/activityLogger';
+import { useAuth } from '@/contexts/AuthContext';
 
 const logTypes = [
   { key: 'activity_logs', label: 'Activity Logs', table: 'activity_logs', icon: Activity },
@@ -15,14 +18,23 @@ const logTypes = [
 ];
 
 const AdminLogs = () => {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState(logTypes[0].key);
   const [logs, setLogs] = useState<any>({});
   const [loading, setLoading] = useState(false);
+  const [logged, setLogged] = useState(false);
 
   useEffect(() => {
     const tab = logTypes.find(l => l.key === activeTab);
     if (tab) fetchLogs(tab.table, tab.key);
   }, [activeTab]);
+
+  useEffect(() => {
+    if (user && !logged) {
+      logActivity({ action: 'admin_logs_view', details: 'Viewed logs dashboard', userId: user.id });
+      setLogged(true);
+    }
+  }, [user, logged]);
 
   const fetchLogs = async (table: string, key: string) => {
     setLoading(true);
@@ -37,13 +49,19 @@ const AdminLogs = () => {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Activity & System Logs</h1>
+      <div className="space-y-8">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="flex flex-col gap-2"
+        >
+          <p className="pill w-fit">Observability</p>
+          <h1 className="text-3xl font-bold">Activity & System Logs</h1>
           <p className="text-muted-foreground">
             Monitor system activity, user actions, and license usage
           </p>
-        </div>
+        </motion.div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-4">
@@ -60,7 +78,7 @@ const AdminLogs = () => {
           
           {logTypes.map(log => (
             <TabsContent key={log.key} value={log.key}>
-              <Card>
+              <Card className="surface-card border border-border/60">
                 <CardHeader>
                   <CardTitle>{log.label}</CardTitle>
                 </CardHeader>

@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { AdminLayout } from '../../components/layout/AdminLayout';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2, Plus } from 'lucide-react';
+import { Edit, Trash2, Plus, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 const AdminBlog = () => {
@@ -114,49 +114,70 @@ const AdminBlog = () => {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
+      <div className="space-y-8">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="flex items-center justify-between"
+          transition={{ duration: 0.4 }}
+          className="flex items-center justify-between gap-3"
         >
           <div>
-            <h1 className="text-3xl font-bold mb-2">Blog Management</h1>
-            <p className="text-muted-foreground">
-              Create and manage blog posts
-            </p>
+            <p className="pill w-fit">Blog</p>
+            <h1 className="text-3xl font-bold text-foreground">Blog Management</h1>
+            <p className="text-muted-foreground">Create, edit, and publish posts.</p>
           </div>
           <Dialog open={open} onOpenChange={(isOpen) => {
             setOpen(isOpen);
             if (!isOpen) resetForm();
           }}>
             <DialogTrigger asChild>
-              <Button>
+              <Button className="group">
                 <Plus className="mr-2 h-4 w-4" />
                 New Post
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-xl">
+            <DialogContent className="max-w-2xl surface-card border border-border/60">
               <DialogHeader>
-                <DialogTitle>{editingPost ? 'Edit Post' : 'Add New Post'}</DialogTitle>
+                <DialogTitle>{editingPost ? 'Edit Post' : 'Create New Post'}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
+                  <label className="text-sm font-medium text-foreground block mb-2">Title</label>
                   <Input
-                    placeholder="Title"
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     required
                   />
                 </div>
                 <div>
+                  <label className="text-sm font-medium text-foreground block mb-2">Slug</label>
+                  <Input
+                    value={formData.slug}
+                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-foreground block mb-2">Excerpt</label>
+                  <Input
+                    value={formData.excerpt}
+                    onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-foreground block mb-2">Tags (comma-separated)</label>
+                  <Input
+                    value={formData.tags.join(', ')}
+                    onChange={(e) => setFormData({ ...formData, tags: e.target.value.split(',').map(tag => tag.trim()) })}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-foreground block mb-2">Content</label>
                   <Textarea
-                    placeholder="Content"
                     value={formData.content}
                     onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                    rows={6}
                     required
-                    rows={5}
                   />
                 </div>
                 <div className="flex items-center gap-2">
@@ -166,9 +187,9 @@ const AdminBlog = () => {
                     checked={formData.published}
                     onChange={(e) => setFormData({ ...formData, published: e.target.checked })}
                   />
-                  <label htmlFor="published">Published</label>
+                  <label htmlFor="published" className="text-sm text-foreground">Published</label>
                 </div>
-                <div className="flex gap-2 pt-4">
+                <div className="flex gap-2 pt-2">
                   <Button type="submit" className="flex-1">
                     {editingPost ? 'Update' : 'Create'} Post
                   </Button>
@@ -181,52 +202,57 @@ const AdminBlog = () => {
           </Dialog>
         </motion.div>
 
-        <Card>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {posts.map((post) => (
-                <TableRow key={post.id}>
-                  <TableCell className="font-medium">
-                    <a href={`/blog/${post.slug}`} target="_blank" rel="noopener noreferrer" className="underline text-primary">
-                      {post.title}
-                    </a>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={post.published ? 'default' : 'secondary'}>
-                      {post.published ? 'Published' : 'Draft'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {new Date(post.created_at).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="sm" onClick={() => handleEdit(post)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleDelete(post.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
+        <Card className="surface-card border border-border/60">
+          <CardHeader>
+            <CardTitle className="text-foreground">Posts</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {posts.map((post) => (
+                  <TableRow key={post.id} className="hover:bg-muted/40">
+                    <TableCell className="font-medium">
+                      <a href={`/blog/${post.slug}`} target="_blank" rel="noopener noreferrer" className="underline text-primary">
+                        {post.title}
+                      </a>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={post.published ? 'default' : 'secondary'}>
+                        {post.published ? 'Published' : 'Draft'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {new Date(post.created_at).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button variant="ghost" size="sm" onClick={() => handleEdit(post)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => handleDelete(post.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
 
-          {posts.length === 0 && (
-            <div className="py-12 text-center text-muted-foreground">
-              No blog posts yet
-            </div>
-          )}
+            {posts.length === 0 && (
+              <div className="py-12 text-center text-muted-foreground">
+                No blog posts yet
+              </div>
+            )}
+          </CardContent>
         </Card>
       </div>
     </AdminLayout>

@@ -7,12 +7,15 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Edit, Trash2, Eye } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { logActivity } from '@/lib/activityLogger';
+import { useAuth } from '@/contexts/AuthContext';
 
 const AdminProjects = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [projects, setProjects] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [viewProject, setViewProject] = useState<any>(null);
@@ -48,6 +51,7 @@ const AdminProjects = () => {
           .eq('id', editingProject.id);
         if (error) throw error;
         toast({ title: 'Project updated successfully' });
+        logActivity({ action: 'admin_project_update', details: `Updated project ${editingProject.title}`, userId: user?.id });
       } else {
         const { error } = await supabase
           .from('projects')
@@ -58,6 +62,7 @@ const AdminProjects = () => {
           }]);
         if (error) throw error;
         toast({ title: 'Project created successfully' });
+        logActivity({ action: 'admin_project_create', details: `Created project ${formData.title}`, userId: user?.id });
       }
       setOpen(false);
       resetForm();
@@ -87,6 +92,7 @@ const AdminProjects = () => {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } else {
       toast({ title: 'Project deleted successfully' });
+      logActivity({ action: 'admin_project_delete', details: `Deleted project ${id}`, userId: user?.id });
       fetchProjects();
     }
   };
@@ -105,15 +111,16 @@ const AdminProjects = () => {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
+      <div className="space-y-8">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="flex items-center justify-between"
+          transition={{ duration: 0.4 }}
+          className="flex items-center justify-between gap-3"
         >
           <div>
-            <h1 className="text-3xl font-bold mb-2">Projects Management</h1>
+            <p className="pill w-fit">Projects</p>
+            <h1 className="text-3xl font-bold mb-1">Projects Management</h1>
             <p className="text-muted-foreground">Add, edit, delete, and view project details</p>
           </div>
           <Dialog open={open} onOpenChange={(isOpen) => {
@@ -121,12 +128,12 @@ const AdminProjects = () => {
             if (!isOpen) resetForm();
           }}>
             <DialogTrigger asChild>
-              <Button>
+              <Button className="group">
                 <Plus className="mr-2 h-4 w-4" />
                 Add Project
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-xl">
+            <DialogContent className="max-w-xl surface-card border border-border/60">
               <DialogHeader>
                 <DialogTitle>{editingProject ? 'Edit Project' : 'Add New Project'}</DialogTitle>
               </DialogHeader>
@@ -140,7 +147,7 @@ const AdminProjects = () => {
                 <select
                   value={formData.type}
                   onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                  className="w-full px-3 py-2 rounded border"
+                  className="w-full rounded border bg-background px-3 py-2"
                 >
                   <option value="website">Website</option>
                   <option value="system">System</option>
@@ -190,11 +197,11 @@ const AdminProjects = () => {
           {projects.map((project, index) => (
             <motion.div
               key={project.id}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.05 }}
+              transition={{ duration: 0.4, delay: index * 0.05 }}
             >
-              <Card className="hover-lift overflow-hidden">
+              <Card className="surface-card border border-border/60 hover-lift overflow-hidden">
                 {project.image_url && (
                   <img src={project.image_url} alt={project.title} className="w-full h-48 object-cover" />
                 )}
@@ -225,7 +232,7 @@ const AdminProjects = () => {
         </div>
 
         {projects.length === 0 && (
-          <Card>
+          <Card className="surface-card border border-border/60">
             <CardContent className="py-12 text-center">
               <p className="text-muted-foreground">No projects yet. Create your first one!</p>
             </CardContent>
@@ -233,7 +240,7 @@ const AdminProjects = () => {
         )}
 
         <Dialog open={!!viewProject} onOpenChange={() => setViewProject(null)}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl surface-card border border-border/60">
             <DialogHeader>
               <DialogTitle>Project Details</DialogTitle>
             </DialogHeader>

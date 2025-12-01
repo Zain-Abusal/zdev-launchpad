@@ -1,92 +1,99 @@
-import { motion } from 'framer-motion';
-import { PublicLayout } from '@/components/layout/PublicLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { ExternalLink } from 'lucide-react';
+import { motion } from "framer-motion";
+import { PublicLayout } from "@/components/layout/PublicLayout";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ExternalLink, Check, Sparkles } from "lucide-react";
 
-const Demos = () => {
-  const demos = [
-    {
-      title: 'E-commerce Dashboard',
-      description: 'Full-featured admin dashboard with analytics, inventory management, and order processing.',
-      features: ['Real-time analytics', 'Inventory tracking', 'Order management', 'Customer insights'],
-      type: 'System',
-    },
-    {
-      title: 'Task Management App',
-      description: 'Collaborative task manager with drag-and-drop interface, teams, and project tracking.',
-      features: ['Kanban boards', 'Team collaboration', 'Time tracking', 'Calendar view'],
-      type: 'System',
-    },
-    {
-      title: 'Data Scraping Bot',
-      description: 'Python bot that automatically collects and processes data from multiple sources.',
-      features: ['Multi-site scraping', 'Data cleaning', 'Scheduled runs', 'Export options'],
-      type: 'Python',
-    },
-  ];
+const demos = [
+  {
+    title: "E-commerce Dashboard",
+    description: "Analytics-rich admin with inventory, fulfillment, and customer insights.",
+    features: ["Realtime KPIs", "Inventory controls", "Order pipeline", "Cohort analytics"],
+    type: "System",
+    link: "https://demo.zdev.dev/ecommerce",
+  },
+  {
+    title: "Task Management Suite",
+    description: "Collaborative tasking with drag-and-drop, time tracking, and reporting.",
+    features: ["Kanban + calendar", "Team roles", "Time + effort", "Project health"],
+    type: "Productivity",
+    link: "https://demo.zdev.dev/tasks",
+  },
+  {
+    title: "Data Scraping Bot",
+    description: "Headless scrapers that cleanse, enrich, and sync data into your stack.",
+    features: ["Scheduled runs", "Data cleaning", "Exports + webhooks", "Slack digests"],
+    type: "Automation",
+    link: "https://demo.zdev.dev/automation",
+  },
+];
 
-  return (
-    <PublicLayout>
-      <section className="container mx-auto px-4 py-20">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
-        >
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gradient">Demos</h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Interactive demonstrations of various projects and capabilities
+const Demos = () => (
+  <PublicLayout>
+    <section className="relative overflow-hidden bg-background px-4 py-16 md:px-8">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(255,255,255,0.06),transparent_40%),radial-gradient(circle_at_80%_0%,rgba(255,255,255,0.05),transparent_45%)]" />
+      <div className="relative mx-auto flex max-w-5xl flex-col items-center text-center">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+          <p className="pill mx-auto w-fit">Interactive demos</p>
+          <h1 className="mt-6 text-4xl font-bold text-foreground md:text-5xl">See how projects feel</h1>
+          <p className="mt-3 text-base md:text-lg text-muted-foreground">
+            Polished previews that showcase motion, usability, and production-ready polish.
           </p>
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <Badge variant="secondary" className="bg-secondary/60 text-foreground">Responsive UI</Badge>
+            <Badge variant="secondary" className="bg-secondary/60 text-foreground">Auth-ready</Badge>
+            <Badge variant="secondary" className="bg-secondary/60 text-foreground">Data aware</Badge>
+          </div>
         </motion.div>
+      </div>
+    </section>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {demos.map((demo, index) => (
-            <motion.div
-              key={demo.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-            >
-              <div className="card-minimal h-full hover:shadow-2xl transition-all">
-                <div className="mb-4">
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <h3 className="text-xl font-bold">{demo.title}</h3>
-                    <Badge variant="secondary">{demo.type}</Badge>
-                  </div>
+    <section className="-mt-10 px-4 pb-20 md:px-8">
+      <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {demos.map((demo, index) => (
+          <motion.div
+            key={demo.title}
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.3, delay: index * 0.05 }}
+          >
+            <Card className="surface-card h-full border border-border/60">
+              <CardHeader className="pb-1">
+                <div className="flex items-start justify-between gap-2">
+                  <CardTitle className="text-lg font-semibold text-foreground line-clamp-2">{demo.title}</CardTitle>
+                  <Badge variant="secondary" className="rounded-full">{demo.type}</Badge>
                 </div>
-                <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground">
-                    {demo.description}
-                  </p>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-sm text-muted-foreground leading-relaxed">{demo.description}</p>
 
-                  <div>
-                    <h4 className="font-semibold text-sm mb-2">Features:</h4>
-                    <ul className="space-y-1">
-                      {demo.features.map((feature) => (
-                        <li key={feature} className="flex items-start gap-2 text-sm">
-                          <span className="text-cyan-500 mt-0.5">•</span>
-                          <span className="text-muted-foreground">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                <div>
+                  <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Highlights</h4>
+                  <ul className="mt-2 space-y-1.5 text-sm text-muted-foreground">
+                    {demo.features.map((feature) => (
+                      <li key={feature} className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-primary" />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
-                  <Button variant="outline" className="w-full rounded-xl" disabled>
+                <a href={demo.link} target="_blank" rel="noopener noreferrer">
+                  <Button variant="outline" className="mt-4 w-full rounded-xl border-border/60 bg-secondary/60">
                     <ExternalLink className="mr-2 h-4 w-4" />
-                    View Demo (Coming Soon)
+                    View live demo
                   </Button>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-    </PublicLayout>
-  );
-};
+                </a>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  </PublicLayout>
+);
 
 export default Demos;

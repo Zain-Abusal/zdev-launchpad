@@ -7,7 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Github, Chrome } from 'lucide-react';
+import { Github, Chrome, ShieldCheck } from 'lucide-react';
+import { logActivity } from '@/lib/activityLogger';
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -30,7 +31,8 @@ const SignIn = () => {
 
       const { data: { user } } = await supabase.auth.getUser();
       const isAdmin = user?.email === 'admin@example.com';
-      
+      logActivity({ action: 'auth_sign_in', details: `Signed in: ${email}` });
+
       toast({
         title: 'Success',
         description: 'Signed in successfully',
@@ -68,25 +70,23 @@ const SignIn = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
+    <div className="min-h-screen page-section flex items-center justify-center p-4">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
+        className="w-full max-w-lg"
       >
-        <Card>
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">Sign in</CardTitle>
-            <CardDescription className="text-center">
-              Choose your preferred sign in method
-            </CardDescription>
+        <Card className="surface-card border border-border/60">
+          <CardHeader className="space-y-1 text-center">
+            <CardTitle className="text-2xl font-bold">Sign in</CardTitle>
+            <CardDescription>Choose your preferred sign in method</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <Button
                 variant="outline"
-                className="w-full"
+                className="w-full border-primary/30"
                 onClick={() => handleOAuthSignIn('google')}
               >
                 <Chrome className="mr-2 h-4 w-4" />
@@ -95,7 +95,7 @@ const SignIn = () => {
 
               <Button
                 variant="outline"
-                className="w-full"
+                className="w-full border-primary/30"
                 onClick={() => handleOAuthSignIn('github')}
               >
                 <Github className="mr-2 h-4 w-4" />
@@ -107,9 +107,7 @@ const SignIn = () => {
                   <span className="w-full border-t" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    Or continue with
-                  </span>
+                  <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
                 </div>
               </div>
 
@@ -141,6 +139,11 @@ const SignIn = () => {
                   {loading ? 'Signing in...' : 'Sign in'}
                 </Button>
               </form>
+
+              <div className="flex items-center gap-2 rounded-2xl border border-border/60 bg-secondary/50 p-3 text-xs text-muted-foreground">
+                <ShieldCheck className="h-4 w-4 text-primary" />
+                <span>We use secure auth and never share your credentials.</span>
+              </div>
 
               <p className="text-center text-sm text-muted-foreground">
                 Don't have an account?{' '}

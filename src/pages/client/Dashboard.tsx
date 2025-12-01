@@ -4,20 +4,26 @@ import { ClientLayout } from '@/components/layout/ClientLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { FolderKanban, Activity, Bell, Key, FileText, MessageSquare, CreditCard } from 'lucide-react';
+import { FolderKanban, Activity, Bell, MessageSquare, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { logActivity } from '@/lib/activityLogger';
 
 const ClientDashboard = () => {
   const { user } = useAuth();
   const [projects, setProjects] = useState<any[]>([]);
+  const [logged, setLogged] = useState(false);
 
   useEffect(() => {
     if (user) {
       fetchProjects();
+      if (!logged) {
+        logActivity({ action: 'client_dashboard_view', details: 'Viewed Client Dashboard', userId: user.id });
+        setLogged(true);
+      }
     }
-  }, [user]);
+  }, [user, logged]);
 
   const fetchProjects = async () => {
     const { data } = await supabase
@@ -48,34 +54,45 @@ const ClientDashboard = () => {
     <ClientLayout>
       <div className="space-y-8">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
+          className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between"
         >
-          <h1 className="text-3xl font-bold mb-2">Welcome Back!</h1>
-          <p className="text-muted-foreground">
-            Here's an overview of your projects and activity
-          </p>
+          <div>
+            <p className="pill w-fit">Client space</p>
+            <h1 className="text-3xl font-bold">Welcome back</h1>
+            <p className="text-muted-foreground">Track projects, updates, and support in one place.</p>
+          </div>
+          <Link to="/client/support">
+            <Button className="group">
+              <MessageSquare className="mr-2 h-4 w-4" />
+              Open a ticket
+            </Button>
+          </Link>
         </motion.div>
 
         {/* Stats */}
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid gap-6 md:grid-cols-3">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             return (
               <motion.div
                 key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+                transition={{ duration: 0.4, delay: index * 0.08 }}
               >
-                <Card className="hover-lift">
+                <Card className="surface-card border border-border/60">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">{stat.label}</CardTitle>
-                    <Icon className="h-4 w-4 text-muted-foreground" />
+                    <span className="rounded-full bg-primary/10 p-2 text-primary">
+                      <Icon className="h-4 w-4" />
+                    </span>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">{stat.value}</div>
+                    <div className="mt-2 text-xs text-muted-foreground">Updated just now</div>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -83,12 +100,15 @@ const ClientDashboard = () => {
           })}
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid gap-6 md:grid-cols-[1.1fr_0.9fr]">
           {/* Projects */}
-          <Card className="hover-lift">
+          <Card className="surface-card border border-border/60">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle>Your Projects</CardTitle>
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  <CardTitle>Your Projects</CardTitle>
+                </div>
                 <Link to="/client/projects">
                   <Button variant="ghost" size="sm">View All</Button>
                 </Link>
@@ -98,10 +118,10 @@ const ClientDashboard = () => {
               <div className="space-y-4">
                 {projects.slice(0, 3).map((project: any) => (
                   <Link key={project.id} to={`/client/projects/${project.id}`}>
-                    <div className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center justify-between rounded-2xl border border-border/60 bg-secondary/50 p-4 transition-colors hover:bg-secondary/80">
                       <div>
                         <h4 className="font-medium">{project.title}</h4>
-                        <p className="text-sm text-muted-foreground">{project.type}</p>
+                        <p className="text-sm text-muted-foreground capitalize">{project.type}</p>
                       </div>
                       <Badge variant="secondary">Active</Badge>
                     </div>
@@ -117,14 +137,14 @@ const ClientDashboard = () => {
           </Card>
 
           {/* Notifications */}
-          <Card className="hover-lift">
+          <Card className="surface-card border border-border/60">
             <CardHeader>
               <CardTitle>Notifications</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {notifications.map((notification, index) => (
-                  <div key={index} className="flex gap-3 p-3 rounded-lg border border-border">
+                  <div key={index} className="flex gap-3 rounded-2xl border border-border/60 p-3">
                     <Bell className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                     <div className="flex-1">
                       <h4 className="font-medium text-sm">{notification.title}</h4>
@@ -139,14 +159,14 @@ const ClientDashboard = () => {
         </div>
 
         {/* Activity Log */}
-        <Card className="hover-lift">
+        <Card className="surface-card border border-border/60">
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {['Project documentation accessed', 'License verified', 'Support ticket created'].map((activity, index) => (
-                <div key={index} className="flex items-center gap-3 text-sm">
+                <div key={activity} className="flex items-center gap-3 text-sm">
                   <div className="h-2 w-2 rounded-full bg-primary" />
                   <span className="text-muted-foreground">{activity}</span>
                   <span className="text-xs text-muted-foreground ml-auto">

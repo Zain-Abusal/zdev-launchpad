@@ -1,24 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Lock, Unlock, Eye, Trash2 } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Lock, Unlock, Eye, Trash2, Plus, Globe, ShieldCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { logActivity } from '@/lib/activityLogger';
+import { useAuth } from '@/contexts/AuthContext';
 
 const AdminLicenses = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [licenses, setLicenses] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -31,30 +28,35 @@ const AdminLicenses = () => {
 
   useEffect(() => {
     fetchLicenses();
-  }, []);
+    if (user) {
+      logActivity({ action: 'admin_licenses_view', details: 'Viewed licenses dashboard', userId: user.id });
+    }
+  }, [user]);
 
   const fetchLicenses = async () => {
     const { data } = await supabase
       .from('licenses')
-      .select(`
-        *,
-        client_projects (
-          id,
-          projects (title)
-        )
-      `)
+      .select(`*, client_projects ( id, projects (title) )`)
       .order('created_at', { ascending: false });
     if (data) setLicenses(data);
+  };
+
+  const fetchDomains = async (licenseId: string) => {
+    const { data } = await supabase
+      .from('license_domains')
+      .select('*')
+      .eq('license_id', licenseId)
+      .order('last_seen', { ascending: false });
+    if (data) setDomains(data);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const { error } = await supabase
-        .from('licenses')
-        .insert([formData]);
+      const { error } = await supabase.from('licenses').insert([formData]);
       if (error) throw error;
       toast({ title: 'License created successfully' });
+      logActivity({ action: 'admin_license_create', details: `Created license ${formData.license_key}`, userId: user?.id });
       setOpen(false);
       setFormData({ license_key: '', status: 'active', max_domains: 1 });
       fetchLicenses();
@@ -70,42 +72,29 @@ const AdminLicenses = () => {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } else {
       toast({ title: 'License deleted successfully' });
+      logActivity({ action: 'admin_license_delete', details: `Deleted license ${id}`, userId: user?.id });
       fetchLicenses();
     }
   };
 
-  const fetchDomains = async (licenseId: string) => {
-    const { data } = await supabase
-      .from('license_domains')
-      .select('*')
-      .eq('license_id', licenseId)
-      .order('last_seen', { ascending: false });
-    
-    if (data) setDomains(data);
-  };
-
-  const handleViewDetails = async (license: any) => {
-    setSelectedLicense(license);
-    await fetchDomains(license.id);
-  };
-
   const handleToggleLock = async (license: any) => {
     const newStatus = license.status === 'active' ? 'locked' : 'active';
-    
-    const { error } = await supabase
-      .from('licenses')
-      .update({ status: newStatus })
-      .eq('id', license.id);
-
+    const { error } = await supabase.from('licenses').update({ status: newStatus }).eq('id', license.id);
     if (error) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } else {
       toast({ title: `License ${newStatus === 'active' ? 'unlocked' : 'locked'} successfully` });
+      logActivity({ action: 'admin_license_toggle', details: `License ${license.id} -> ${newStatus}`, userId: user?.id });
       fetchLicenses();
       if (selectedLicense?.id === license.id) {
         setSelectedLicense({ ...selectedLicense, status: newStatus });
       }
     }
+  };
+
+  const handleViewDetails = async (license: any) => {
+    setSelectedLicense(license);
+    await fetchDomains(license.id);
   };
 
   const getStatusColor = (status: string) => {
@@ -117,208 +106,133 @@ const AdminLicenses = () => {
     }
   };
 
-  const maskLicenseKey = (key: string) => {
-    const parts = key.split('-');
-    if (parts.length >= 4) {
-      return `${parts[0]}-${parts[1]}-••••-${parts[parts.length - 1]}`;
-    }
-    return '••••-••••-••••-••••';
-  };
-
   return (
     <AdminLayout>
-      <div className="space-y-6">
+      <div className="space-y-8">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.4 }}
+          className="flex items-center justify-between gap-3"
         >
-          <h1 className="text-3xl font-bold mb-2">License Overview</h1>
-          <p className="text-muted-foreground">
-            Manage software licenses and activations
-          </p>
+          <div>
+            <p className="pill w-fit">Licenses</p>
+            <h1 className="text-3xl font-bold">License Management</h1>
+            <p className="text-muted-foreground">Manage activation keys, domains, and status.</p>
+          </div>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button className="group">
+                <Plus className="mr-2 h-4 w-4" /> New License
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-xl surface-card border border-border/60">
+              <DialogHeader>
+                <DialogTitle>Create License</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <Input
+                  placeholder="License key"
+                  value={formData.license_key}
+                  onChange={(e) => setFormData({ ...formData, license_key: e.target.value })}
+                  required
+                />
+                <Input
+                  placeholder="Max domains"
+                  type="number"
+                  min={1}
+                  value={formData.max_domains}
+                  onChange={(e) => setFormData({ ...formData, max_domains: Number(e.target.value) })}
+                />
+                <div className="flex gap-2">
+                  <Button type="submit" className="flex-1">Create</Button>
+                  <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
         </motion.div>
 
-        <Card>
-          <div className="flex justify-end p-4">
-            <Button onClick={() => setOpen(true)}>
-              Add License
-            </Button>
-          </div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>License Key</TableHead>
-                <TableHead>Project</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Domains</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {licenses.map((license) => (
-                <TableRow key={license.id}>
-                  <TableCell className="font-mono text-sm">
-                    {maskLicenseKey(license.license_key)}
-                  </TableCell>
-                  <TableCell>
-                    {license.client_projects?.projects?.title || 'N/A'}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={getStatusColor(license.status)}>
-                      {license.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {license.max_domains || 1}
-                  </TableCell>
-                  <TableCell>
-                    {new Date(license.created_at).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => handleViewDetails(license)}
-                      >
+        <Card className="surface-card border border-border/60">
+          <CardHeader>
+            <CardTitle>Licenses</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Key</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Max Domains</TableHead>
+                  <TableHead>Project</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {licenses.map((license) => (
+                  <TableRow key={license.id} className="hover:bg-muted/50">
+                    <TableCell><code className="text-xs bg-muted px-2 py-1 rounded">{license.license_key}</code></TableCell>
+                    <TableCell><Badge variant={getStatusColor(license.status)}>{license.status}</Badge></TableCell>
+                    <TableCell>{license.max_domains}</TableCell>
+                    <TableCell>{license.client_projects?.projects?.title || '�'}</TableCell>
+                    <TableCell className="flex flex-wrap gap-2">
+                      <Button size="sm" variant="outline" onClick={() => handleViewDetails(license)}>
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button
-                        size="sm"
-                        variant={license.status === 'active' ? 'destructive' : 'default'}
-                        onClick={() => handleToggleLock(license)}
-                      >
-                        {license.status === 'active' ? (
-                          <Lock className="h-4 w-4" />
-                        ) : (
-                          <Unlock className="h-4 w-4" />
-                        )}
+                      <Button size="sm" variant="outline" onClick={() => handleToggleLock(license)}>
+                        {license.status === 'active' ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
                       </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => handleDelete(license.id)}
-                      >
+                      <Button size="sm" variant="destructive" onClick={() => handleDelete(license.id)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-
-          {licenses.length === 0 && (
-            <div className="py-12 text-center text-muted-foreground">
-              No licenses yet
-            </div>
-          )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
         </Card>
 
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent className="max-w-xl">
-            <DialogHeader>
-              <DialogTitle>Add New License</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <input
-                type="text"
-                placeholder="License Key"
-                value={formData.license_key}
-                onChange={(e) => setFormData({ ...formData, license_key: e.target.value })}
-                required
-                className="w-full px-3 py-2 rounded border"
-              />
-              <input
-                type="number"
-                placeholder="Max Domains"
-                value={formData.max_domains}
-                onChange={(e) => setFormData({ ...formData, max_domains: Number(e.target.value) })}
-                min={1}
-                className="w-full px-3 py-2 rounded border"
-              />
-              <select
-                value={formData.status}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                className="w-full px-3 py-2 rounded border"
-              >
-                <option value="active">Active</option>
-                <option value="locked">Locked</option>
-                <option value="expired">Expired</option>
-              </select>
-              <div className="flex gap-2 pt-4">
-                <Button type="submit" className="flex-1">Create License</Button>
-                <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
-
-        <Dialog open={!!selectedLicense} onOpenChange={() => setSelectedLicense(null)}>
-          <DialogContent className="max-w-3xl">
-            <DialogHeader>
-              <DialogTitle>License Details</DialogTitle>
-            </DialogHeader>
-            {selectedLicense && (
-              <div className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-sm">License Key</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <code className="text-sm bg-muted px-3 py-2 rounded block">
-                        {selectedLicense.license_key}
-                      </code>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-sm">Status</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <Badge variant={getStatusColor(selectedLicense.status)}>
-                        {selectedLicense.status}
-                      </Badge>
-                    </CardContent>
-                  </Card>
+        {selectedLicense && (
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card className="surface-card border border-border/60">
+              <CardHeader>
+                <CardTitle>License Details</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="h-4 w-4 text-primary" />
+                  <span>Key: {selectedLicense.license_key}</span>
                 </div>
+                <div>Status: <Badge variant={getStatusColor(selectedLicense.status)}>{selectedLicense.status}</Badge></div>
+                <div>Max Domains: {selectedLicense.max_domains}</div>
+                <div>Project: {selectedLicense.client_projects?.projects?.title || '�'}</div>
+              </CardContent>
+            </Card>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm">Associated Domains</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {domains.length > 0 ? (
-                      <div className="space-y-2">
-                        {domains.map((domain) => (
-                          <div key={domain.id} className="flex items-center justify-between p-2 rounded border">
-                            <span className="font-mono text-sm">{domain.domain}</span>
-                            <span className="text-xs text-muted-foreground">
-                              Last seen: {new Date(domain.last_seen).toLocaleString()}
-                            </span>
-                          </div>
-                        ))}
+            <Card className="surface-card border border-border/60">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Globe className="h-4 w-4" /> Domains
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {domains.length ? (
+                  <div className="space-y-2 text-sm">
+                    {domains.map((domain) => (
+                      <div key={domain.id} className="flex items-center justify-between rounded border border-border/60 px-3 py-2">
+                        <span>{domain.domain}</span>
+                        <span className="text-xs text-muted-foreground">Last seen: {new Date(domain.last_seen).toLocaleDateString()}</span>
                       </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">No domains registered yet</p>
-                    )}
-                  </CardContent>
-                </Card>
-
-                <div className="bg-muted p-4 rounded-lg">
-                  <p className="text-sm text-muted-foreground">
-                    <strong>Note:</strong> Locking a license will prevent it from validating on any domain. 
-                    The client's software will show as unlicensed.
-                  </p>
-                </div>
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground text-sm">No domains recorded.</p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </AdminLayout>
   );

@@ -6,18 +6,24 @@ import { Button } from '@/components/ui/button';
 import { Key, Globe, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { logActivity } from '@/lib/activityLogger';
 
 const ClientLicense = () => {
   const { user } = useAuth();
   const [license, setLicense] = useState<any>(null);
   const [domains, setDomains] = useState<any[]>([]);
   const [logs, setLogs] = useState<any[]>([]);
+  const [logged, setLogged] = useState(false);
 
   useEffect(() => {
     if (user) {
       fetchLicense();
+      if (!logged) {
+        logActivity({ action: 'client_license_view', details: 'Viewed license', userId: user.id });
+        setLogged(true);
+      }
     }
-  }, [user]);
+  }, [user, logged]);
 
   const fetchLicense = async () => {
     const { data } = await supabase
@@ -51,7 +57,7 @@ const ClientLicense = () => {
   return (
     <ClientLayout>
       <div className="space-y-6">
-        <Card className="hover-lift">
+        <Card className="surface-card border border-border/60">
           <CardHeader>
             <CardTitle><Key className="inline mr-2" />License Key</CardTitle>
           </CardHeader>
@@ -66,7 +72,7 @@ const ClientLicense = () => {
           </CardContent>
         </Card>
 
-        <Card className="hover-lift">
+        <Card className="surface-card border border-border/60">
           <CardHeader>
             <CardTitle><Globe className="inline mr-2" />Associated Domains</CardTitle>
           </CardHeader>
@@ -74,7 +80,7 @@ const ClientLicense = () => {
             {domains.length ? (
               <ul className="text-sm space-y-2">
                 {domains.map((domain: any) => (
-                  <li key={domain.id} className="p-2 border rounded">
+                  <li key={domain.id} className="p-2 border border-border/60 rounded">
                     <div className="font-medium">{domain.domain}</div>
                     <div className="text-xs text-muted-foreground">
                       Last seen: {new Date(domain.last_seen).toLocaleDateString()}
@@ -86,7 +92,7 @@ const ClientLicense = () => {
           </CardContent>
         </Card>
 
-        <Card className="hover-lift">
+        <Card className="surface-card border border-border/60">
           <CardHeader>
             <CardTitle><RefreshCw className="inline mr-2" />License Activity</CardTitle>
           </CardHeader>
@@ -94,7 +100,7 @@ const ClientLicense = () => {
             {logs.length ? (
               <ul className="text-sm space-y-2">
                 {logs.map((log: any) => (
-                  <li key={log.id} className="p-2 border-b">
+                  <li key={log.id} className="p-2 border-b border-border/60">
                     <div>{log.domain}</div>
                     <div className="text-xs text-muted-foreground">
                       {new Date(log.created_at).toLocaleString()}

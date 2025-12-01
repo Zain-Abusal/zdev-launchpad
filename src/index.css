@@ -10,50 +10,50 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 9%;
+    --background: 0 0% 98%;
+    --foreground: 0 0% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 9%;
+    --card-foreground: 0 0% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 9%;
+    --popover-foreground: 0 0% 10%;
 
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
+    --primary: 0 0% 12%;
+    --primary-foreground: 0 0% 96%;
 
-    --secondary: 240 5% 96%;
-    --secondary-foreground: 0 0% 9%;
+    --secondary: 0 0% 94%;
+    --secondary-foreground: 0 0% 10%;
 
-    --muted: 240 5% 96%;
-    --muted-foreground: 0 0% 45%;
+    --muted: 0 0% 90%;
+    --muted-foreground: 0 0% 40%;
 
-    --accent: 240 5% 96%;
-    --accent-foreground: 0 0% 9%;
+    --accent: 0 0% 92%;
+    --accent-foreground: 0 0% 12%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 6% 90%;
-    --input: 240 6% 90%;
-    --ring: 0 0% 9%;
+    --border: 0 0% 82%;
+    --input: 0 0% 82%;
+    --ring: 0 0% 12%;
 
     --radius: 0.5rem;
     
     /* Vibrant accent colors */
-    --cyan: 189 94% 43%;
-    --cyan-light: 189 94% 53%;
-    --purple: 271 91% 65%;
-    --purple-light: 271 91% 75%;
-    --pink: 329 86% 70%;
-    --pink-light: 329 86% 80%;
+    --cyan: 0 0% 55%;
+    --cyan-light: 0 0% 72%;
+    --purple: 0 0% 40%;
+    --purple-light: 0 0% 60%;
+    --pink: 0 0% 65%;
+    --pink-light: 0 0% 78%;
     
     /* Enhanced shadows */
     --shadow-elegant: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
     --shadow-glow: 0 0 60px rgba(0, 0, 0, 0.08);
     
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--cyan)), hsl(var(--purple)));
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--cyan)));
     --gradient-accent: linear-gradient(135deg, hsl(var(--purple)), hsl(var(--pink)));
     
     /* Animations */
@@ -116,33 +116,33 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
+    --background: 215 25% 8%;
+    --foreground: 0 0% 96%;
 
-    --card: 0 0% 6%;
-    --card-foreground: 0 0% 98%;
+    --card: 215 22% 10%;
+    --card-foreground: 0 0% 96%;
 
-    --popover: 0 0% 6%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 215 22% 10%;
+    --popover-foreground: 0 0% 96%;
 
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
+    --primary: 212 100% 60%;
+    --primary-foreground: 215 25% 8%;
 
-    --secondary: 240 4% 16%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 215 18% 16%;
+    --secondary-foreground: 0 0% 96%;
 
-    --muted: 240 4% 16%;
-    --muted-foreground: 0 0% 63%;
+    --muted: 215 15% 18%;
+    --muted-foreground: 0 0% 78%;
 
-    --accent: 240 4% 16%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 215 18% 16%;
+    --accent-foreground: 0 0% 96%;
 
-    --destructive: 0 63% 31%;
+    --destructive: 0 60% 45%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 4% 16%;
-    --input: 240 4% 16%;
-    --ring: 0 0% 83%;
+    --border: 215 15% 22%;
+    --input: 215 15% 22%;
+    --ring: 212 100% 60%;
     
     --sidebar-background: 0 0% 3.9%;
     --sidebar-foreground: 0 0% 98%;
@@ -153,21 +153,21 @@ All colors MUST be HSL.
     --sidebar-border: 240 4% 16%;
     --sidebar-ring: 0 0% 83%;
     
-    --chart-1: 189 94% 43%;
-    --chart-2: 271 91% 65%;
-    --chart-3: 329 86% 70%;
-    --chart-4: 189 94% 53%;
-    --chart-5: 271 91% 75%;
+    --chart-1: 212 100% 60%;
+    --chart-2: 215 22% 70%;
+    --chart-3: 215 18% 55%;
+    --chart-4: 0 0% 70%;
+    --chart-5: 0 0% 50%;
     
     --sidebar: 0 0% 6%;
     
     /* Vibrant accent colors for dark mode */
-    --cyan: 189 94% 43%;
-    --cyan-light: 189 94% 53%;
-    --purple: 271 91% 65%;
-    --purple-light: 271 91% 75%;
-    --pink: 329 86% 70%;
-    --pink-light: 329 86% 80%;
+    --cyan: 204 80% 58%;
+    --cyan-light: 204 80% 70%;
+    --purple: 260 65% 60%;
+    --purple-light: 260 65% 72%;
+    --pink: 330 70% 62%;
+    --pink-light: 330 70% 75%;
   }
 }
 
@@ -178,6 +178,20 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    background-image:
+      radial-gradient(circle at 10% 20%, hsla(var(--cyan), 0.12), transparent 35%),
+      radial-gradient(circle at 90% 10%, hsla(var(--purple), 0.12), transparent 35%),
+      radial-gradient(circle at 50% 100%, hsla(var(--pink), 0.1), transparent 40%),
+      linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
+    background-attachment: fixed;
+  }
+
+  .dark body {
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(56, 189, 248, 0.12), transparent 35%),
+      radial-gradient(circle at 85% 10%, rgba(167, 139, 250, 0.12), transparent 35%),
+      radial-gradient(circle at 50% 100%, rgba(244, 114, 182, 0.12), transparent 40%),
+      linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
   }
   
   h1, h2, h3, h4, h5, h6 {
@@ -205,6 +219,34 @@ All colors MUST be HSL.
   
   .hover-scale {
     @apply transition-transform duration-200 hover:scale-[1.02];
+  }
+
+  .page-section {
+    @apply relative overflow-hidden;
+  }
+
+  .page-section::before {
+    content: "";
+    @apply absolute inset-0 pointer-events-none;
+    background-image:
+      radial-gradient(circle at 20% 20%, hsla(var(--cyan), 0.12), transparent 35%),
+      radial-gradient(circle at 80% 10%, hsla(var(--purple), 0.12), transparent 35%),
+      radial-gradient(circle at 50% 90%, hsla(var(--pink), 0.1), transparent 40%);
+  }
+
+  .dark .page-section::before {
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.14), transparent 35%),
+      radial-gradient(circle at 80% 10%, rgba(167, 139, 250, 0.14), transparent 35%),
+      radial-gradient(circle at 50% 90%, rgba(244, 114, 182, 0.12), transparent 40%);
+  }
+
+  .surface-card {
+    @apply rounded-3xl border border-border/60 bg-card/90 shadow-xl backdrop-blur;
+  }
+
+  .pill {
+    @apply inline-flex items-center gap-2 rounded-full border border-border/70 bg-secondary/70 px-4 py-2 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/60 hover:text-primary;
   }
   
   .gradient-primary {

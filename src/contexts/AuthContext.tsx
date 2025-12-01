@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { sendResendEmail } from '@/integrations/resend';
 
 interface AuthContextType {
   user: User | null;
@@ -31,6 +30,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (event === 'SIGNED_IN' && session?.user?.email && session.user.email !== lastUserEmail) {
         lastUserEmail = session.user.email;
         try {
+          const { sendResendEmail } = await import('@/integrations/resend');
           await sendResendEmail({
             to: session.user.email,
             subject: 'Thank you for logging in!',

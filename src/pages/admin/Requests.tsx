@@ -16,11 +16,14 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Eye } from 'lucide-react';
+import { Eye, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { logActivity } from '@/lib/activityLogger';
+import { useAuth } from '@/contexts/AuthContext';
 
 const AdminRequests = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [requests, setRequests] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [editingRequest, setEditingRequest] = useState<any>(null);
@@ -34,7 +37,10 @@ const AdminRequests = () => {
 
   useEffect(() => {
     fetchRequests();
-  }, []);
+    if (user) {
+      logActivity({ action: 'admin_requests_view', details: 'Viewed project requests', userId: user.id });
+    }
+  }, [user]);
 
   const fetchRequests = async () => {
     const { data } = await supabase
@@ -54,12 +60,14 @@ const AdminRequests = () => {
           .eq('id', editingRequest.id);
         if (error) throw error;
         toast({ title: 'Request updated successfully' });
+        logActivity({ action: 'admin_request_update', details: `Updated request ${editingRequest.email}`, userId: user?.id });
       } else {
         const { error } = await supabase
           .from('project_requests')
           .insert([formData]);
         if (error) throw error;
         toast({ title: 'Request created successfully' });
+        logActivity({ action: 'admin_request_create', details: `Created request ${formData.email}`, userId: user?.id });
       }
       setOpen(false);
       resetForm();
@@ -88,6 +96,7 @@ const AdminRequests = () => {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } else {
       toast({ title: 'Request deleted successfully' });
+      logActivity({ action: 'admin_request_delete', details: `Deleted request ${id}`, userId: user?.id });
       fetchRequests();
     }
   };
@@ -108,79 +117,82 @@ const AdminRequests = () => {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
+      <div className="space-y-8">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.4 }}
+          className="flex items-center justify-between gap-3"
         >
-          <h1 className="text-3xl font-bold mb-2">Project Requests</h1>
-          <p className="text-muted-foreground">
-            Review and manage incoming project requests
-          </p>
+          <div>
+            <p className="pill w-fit">Requests</p>
+            <h1 className="text-3xl font-bold">Project Requests</h1>
+            <p className="text-muted-foreground">
+              Review and manage incoming project requests
+            </p>
+          </div>
+          <Dialog open={open} onOpenChange={(isOpen) => {
+            setOpen(isOpen);
+            if (!isOpen) resetForm();
+          }}>
+            <DialogTrigger asChild>
+              <Button className="group">
+                <Sparkles className="mr-2 h-4 w-4" />
+                New Request
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-xl surface-card border border-border/60">
+              <DialogHeader>
+                <DialogTitle>{editingRequest ? 'Edit Request' : 'Add New Request'}</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <Input
+                  placeholder="Full Name"
+                  value={formData.full_name}
+                  onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                  required
+                />
+                <Input
+                  placeholder="Email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  required
+                />
+                <Input
+                  placeholder="Project Title"
+                  value={formData.project_title}
+                  onChange={(e) => setFormData({ ...formData, project_title: e.target.value })}
+                  required
+                />
+                <Textarea
+                  placeholder="Description"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  rows={3}
+                />
+                <select
+                  value={formData.status}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                  className="w-full rounded border bg-background px-3 py-2"
+                >
+                  <option value="new">New</option>
+                  <option value="in_review">In Review</option>
+                  <option value="closed">Closed</option>
+                </select>
+                <div className="flex gap-2">
+                  <Button type="submit" className="flex-1">
+                    {editingRequest ? 'Update' : 'Create'} Request
+                  </Button>
+                  <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
         </motion.div>
 
-        <Card>
-          <div className="flex justify-end p-4">
-            <Dialog open={open} onOpenChange={(isOpen) => {
-              setOpen(isOpen);
-              if (!isOpen) resetForm();
-            }}>
-              <DialogTrigger asChild>
-                <Button>
-                  Add Request
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-xl">
-                <DialogHeader>
-                  <DialogTitle>{editingRequest ? 'Edit Request' : 'Add New Request'}</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <Input
-                    placeholder="Full Name"
-                    value={formData.full_name}
-                    onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                    required
-                  />
-                  <Input
-                    placeholder="Email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    required
-                  />
-                  <Input
-                    placeholder="Project Title"
-                    value={formData.project_title}
-                    onChange={(e) => setFormData({ ...formData, project_title: e.target.value })}
-                    required
-                  />
-                  <Textarea
-                    placeholder="Description"
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    rows={4}
-                  />
-                  <select
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                    className="w-full px-3 py-2 rounded border"
-                  >
-                    <option value="new">New</option>
-                    <option value="in_review">In Review</option>
-                    <option value="closed">Closed</option>
-                  </select>
-                  <div className="flex gap-2 pt-4">
-                    <Button type="submit" className="flex-1">
-                      {editingRequest ? 'Update' : 'Create'} Request
-                    </Button>
-                    <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-                      Cancel
-                    </Button>
-                  </div>
-                </form>
-              </DialogContent>
-            </Dialog>
-          </div>
+        <Card className="surface-card border border-border/60">
           <Table>
             <TableHeader>
               <TableRow>
@@ -188,46 +200,33 @@ const AdminRequests = () => {
                 <TableHead>Email</TableHead>
                 <TableHead>Project</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Date</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {requests.map((request) => (
-                <TableRow key={request.id}>
-                  <TableCell className="font-medium">{request.full_name}</TableCell>
+                <TableRow key={request.id} className="hover:bg-muted/50">
+                  <TableCell>{request.full_name}</TableCell>
                   <TableCell>{request.email}</TableCell>
-                  <TableCell className="max-w-xs truncate">
-                    {request.project_title}
-                  </TableCell>
+                  <TableCell>{request.project_title}</TableCell>
                   <TableCell>
-                    <Badge variant={getStatusColor(request.status || 'new')}>
-                      {request.status || 'new'}
-                    </Badge>
+                    <Badge variant={getStatusColor(request.status)}>{request.status}</Badge>
                   </TableCell>
-                  <TableCell>
-                    {new Date(request.created_at).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="sm" onClick={() => handleEdit(request)}>
-                        Edit
-                      </Button>
-                      <Button variant="destructive" size="sm" onClick={() => handleDelete(request.id)}>
-                        Delete
-                      </Button>
-                    </div>
+                  <TableCell className="flex gap-2">
+                    <Button size="sm" variant="outline" onClick={() => setEditingRequest(request)}>
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => handleEdit(request)}>
+                      Edit
+                    </Button>
+                    <Button size="sm" variant="destructive" onClick={() => handleDelete(request.id)}>
+                      Delete
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-
-          {requests.length === 0 && (
-            <div className="py-12 text-center text-muted-foreground">
-              No project requests yet
-            </div>
-          )}
         </Card>
       </div>
     </AdminLayout>
