@@ -7,18 +7,18 @@ import { ExternalLink, Check, Sparkles } from "lucide-react";
 
 const demos = [
   {
-    title: "E-commerce Dashboard",
-    description: "Analytics-rich admin with inventory, fulfillment, and customer insights.",
-    features: ["Realtime KPIs", "Inventory controls", "Order pipeline", "Cohort analytics"],
+    title: "Inventory Control System",
+    description: "Warehouse-grade inventory, order routing, and supplier visibility.",
+    features: ["Multi-warehouse stock", "Low-stock alerts", "Order pipeline", "Supplier tracking"],
     type: "System",
-    link: "https://demo.zdev.dev/ecommerce",
+    link: "https://demo-inventory.shopzyra.site",
   },
   {
-    title: "Task Management Suite",
-    description: "Collaborative tasking with drag-and-drop, time tracking, and reporting.",
-    features: ["Kanban + calendar", "Team roles", "Time + effort", "Project health"],
-    type: "Productivity",
-    link: "https://demo.zdev.dev/tasks",
+    title: "Publishing/Blog Site",
+    description: "Story-focused blog with SEO, author profiles, and content scheduling.",
+    features: ["SEO-friendly", "Author pages", "Content calendar", "Fast reading experience"],
+    type: "Marketing",
+    link: "https://demo-blog.shopzyra.site",
   },
   {
     title: "Data Scraping Bot",
