@@ -51,6 +51,10 @@ import AdminLogs from "./pages/admin/Logs";
 import AdminAnnouncement from "./pages/admin/Announcement";
 import MarketingDashboard from "./pages/admin/MarketingDashboard";
 import AdminMedia from "./pages/admin/Media";
+import AdminAnalytics from "./pages/admin/Analytics";
+import AdminBilling from "./pages/admin/AdminBilling";
+import AdminPayments from "./pages/admin/Payments";
+import AdminMaintenance from "./pages/admin/Maintenance";
 
 import NotFound from "./pages/NotFound";
 
@@ -109,6 +113,10 @@ const App = () => (
               <Route path="/admin/licenses" element={<AdminLicenses />} />
               <Route path="/admin/support" element={<AdminSupport />} />
               <Route path="/admin/media" element={<AdminMedia />} />
+              <Route path="/admin/analytics" element={<AdminAnalytics />} />
+              <Route path="/admin/billing" element={<AdminBilling />} />
+              <Route path="/admin/payments" element={<AdminPayments />} />
+              <Route path="/admin/maintenance" element={<AdminMaintenance />} />
               <Route path="/admin/editor" element={<AdminCodeEditor />} />
               <Route path="/admin/logs" element={<AdminLogs />} />
               <Route path="/admin/announcement" element={<AdminAnnouncement />} />

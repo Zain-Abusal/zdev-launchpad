@@ -67,9 +67,9 @@ CREATE TABLE IF NOT EXISTS licenses (
   client_project_id UUID,
   status TEXT,
   max_domains INT,
-  expires_at TIMESTAMP,
-  created_at TIMESTAMP DEFAULT now(),
-  updated_at TIMESTAMP,
+                                                                                                                              expires_at TIMESTAMP,
+                                                                                                                              created_at TIMESTAMP DEFAULT now(),
+                                                                                                                              updated_at TIMESTAMP,
   FOREIGN KEY (client_project_id) REFERENCES client_projects(id)
 );
 
