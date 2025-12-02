@@ -1,5 +1,5 @@
-import { Link, useLocation } from 'react-router-dom';
-import { Home, FolderKanban, User, CreditCard, LogOut } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Home, FolderKanban, User, CreditCard, LogOut, HelpCircle, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -7,6 +7,7 @@ import { Moon, Sun } from 'lucide-react';
 
 export const ClientSidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
@@ -17,6 +18,8 @@ export const ClientSidebar = () => {
     { path: '/client/projects', label: 'My Projects', icon: FolderKanban },
     { path: '/client/profile', label: 'Profile', icon: User },
     { path: '/client/billing', label: 'Billing', icon: CreditCard },
+    { path: '/client/license', label: 'Licenses', icon: ShieldCheck },
+    { path: '/client/support', label: 'Support', icon: HelpCircle },
   ];
 
   return (
@@ -56,7 +59,10 @@ export const ClientSidebar = () => {
         </Button>
         <Button
           variant="ghost"
-          onClick={signOut}
+          onClick={async () => {
+            await signOut();
+            navigate('/auth/sign-in', { replace: true });
+          }}
           className="w-full justify-start"
         >
           <LogOut className="mr-2 h-4 w-4" />

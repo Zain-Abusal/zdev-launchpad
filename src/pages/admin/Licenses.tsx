@@ -1,239 +1,529 @@
-import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { AdminLayout } from '@/components/layout/AdminLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Lock, Unlock, Eye, Trash2, Plus, Globe, ShieldCheck } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import { logActivity } from '@/lib/activityLogger';
-import { useAuth } from '@/contexts/AuthContext';
+ï»¿import { useEffect, useMemo, useState } from "react";
+import { format } from "date-fns";
+import { AdminLayout } from "@/components/layout/AdminLayout";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Search, Plus, MoreHorizontal, Key, Trash2, Edit, Copy } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { logActivity } from "@/lib/activityLogger";
+import { useAuth } from "@/contexts/AuthContext";
+
+const generateLicenseKey = () => {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  const segments: string[] = [];
+  for (let i = 0; i < 4; i++) {
+    let segment = "";
+    for (let j = 0; j < 4; j++) {
+      segment += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    segments.push(segment);
+  }
+  return segments.join("-");
+};
 
 const AdminLicenses = () => {
-  const { toast } = useToast();
   const { user } = useAuth();
+  const { toast } = useToast();
   const [licenses, setLicenses] = useState<any[]>([]);
-  const [open, setOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    license_key: '',
-    status: 'active',
-    max_domains: 1,
-  });
+  const [clientProjects, setClientProjects] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedLicense, setSelectedLicense] = useState<any>(null);
-  const [domains, setDomains] = useState<any[]>([]);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDetailSheetOpen, setIsDetailSheetOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const [formData, setFormData] = useState({
+    license_key: generateLicenseKey(),
+    client_project_id: "",
+    status: "active",
+    max_domains: "3",
+    expires_at: "",
+  });
 
   useEffect(() => {
-    fetchLicenses();
-    if (user) {
-      logActivity({ action: 'admin_licenses_view', details: 'Viewed licenses dashboard', userId: user.id });
-    }
-  }, [user]);
-
-  const fetchLicenses = async () => {
-    const { data } = await supabase
-      .from('licenses')
-      .select(`*, client_projects ( id, projects (title) )`)
-      .order('created_at', { ascending: false });
-    if (data) setLicenses(data);
-  };
-
-  const fetchDomains = async (licenseId: string) => {
-    const { data } = await supabase
-      .from('license_domains')
-      .select('*')
-      .eq('license_id', licenseId)
-      .order('last_seen', { ascending: false });
-    if (data) setDomains(data);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const { error } = await supabase.from('licenses').insert([formData]);
-      if (error) throw error;
-      toast({ title: 'License created successfully' });
-      logActivity({ action: 'admin_license_create', details: `Created license ${formData.license_key}`, userId: user?.id });
-      setOpen(false);
-      setFormData({ license_key: '', status: 'active', max_domains: 1 });
-      fetchLicenses();
-    } catch (error: any) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this license?')) return;
-    const { error } = await supabase.from('licenses').delete().eq('id', id);
-    if (error) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
-    } else {
-      toast({ title: 'License deleted successfully' });
-      logActivity({ action: 'admin_license_delete', details: `Deleted license ${id}`, userId: user?.id });
-      fetchLicenses();
-    }
-  };
-
-  const handleToggleLock = async (license: any) => {
-    const newStatus = license.status === 'active' ? 'locked' : 'active';
-    const { error } = await supabase.from('licenses').update({ status: newStatus }).eq('id', license.id);
-    if (error) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
-    } else {
-      toast({ title: `License ${newStatus === 'active' ? 'unlocked' : 'locked'} successfully` });
-      logActivity({ action: 'admin_license_toggle', details: `License ${license.id} -> ${newStatus}`, userId: user?.id });
-      fetchLicenses();
-      if (selectedLicense?.id === license.id) {
-        setSelectedLicense({ ...selectedLicense, status: newStatus });
+    const loadData = async () => {
+      setLoading(true);
+      const [licensesRes, projectsRes] = await Promise.all([
+        supabase
+          .from("licenses")
+          .select("*, client_projects(id, projects(title))")
+          .order("created_at", { ascending: false }),
+        supabase.from("client_projects").select("id, projects(title)")
+      ]);
+      if (licensesRes.error) toast({ title: "Error", description: "Could not load licenses", variant: "destructive" });
+      if (projectsRes.error) toast({ title: "Error", description: "Could not load projects", variant: "destructive" });
+      setLicenses(licensesRes.data || []);
+      setClientProjects(projectsRes.data || []);
+      setLoading(false);
+      if (user) {
+        logActivity({ action: "admin_licenses_view", details: "Viewed licenses dashboard", userId: user.id });
       }
-    }
+    };
+    loadData();
+  }, [user, toast]);
+
+  const filteredLicenses = useMemo(() => {
+    const query = searchQuery.toLowerCase();
+    return (licenses || []).filter((license) => {
+      return (
+        license.license_key?.toLowerCase().includes(query) ||
+        license.client_projects?.projects?.title?.toLowerCase().includes(query)
+      );
+    });
+  }, [licenses, searchQuery]);
+
+  const resetForm = () => {
+    setFormData({
+      license_key: generateLicenseKey(),
+      client_project_id: "",
+      status: "active",
+      max_domains: "3",
+      expires_at: "",
+    });
   };
 
-  const handleViewDetails = async (license: any) => {
+  const refreshLicenses = async () => {
+    const { data } = await supabase
+      .from("licenses")
+      .select("*, client_projects(id, projects(title))")
+      .order("created_at", { ascending: false });
+    setLicenses(data || []);
+  };
+
+  const handleCreate = async () => {
+    setSaving(true);
+    const { error } = await supabase.from("licenses").insert({
+      license_key: formData.license_key,
+      client_project_id: formData.client_project_id || null,
+      status: formData.status,
+      max_domains: parseInt(formData.max_domains) || 3,
+      expires_at: formData.expires_at || null,
+    });
+    if (error) {
+      toast({ title: "Failed to create license", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "License created successfully" });
+      resetForm();
+      setIsCreateDialogOpen(false);
+      await refreshLicenses();
+    }
+    setSaving(false);
+  };
+
+  const handleUpdate = async () => {
+    if (!selectedLicense) return;
+    setSaving(true);
+    const { error } = await supabase
+      .from("licenses")
+      .update({
+        status: formData.status,
+        max_domains: parseInt(formData.max_domains) || 3,
+        expires_at: formData.expires_at || null,
+      })
+      .eq("id", selectedLicense.id);
+    if (error) {
+      toast({ title: "Failed to update license", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "License updated successfully" });
+      setIsDetailSheetOpen(false);
+      setSelectedLicense(null);
+      resetForm();
+      await refreshLicenses();
+    }
+    setSaving(false);
+  };
+
+  const handleDelete = async () => {
+    if (!selectedLicense) return;
+    setDeleting(true);
+    const { error } = await supabase.from("licenses").delete().eq("id", selectedLicense.id);
+    if (error) {
+      toast({ title: "Failed to delete license", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "License deleted successfully" });
+      setIsDeleteDialogOpen(false);
+      setSelectedLicense(null);
+      await refreshLicenses();
+    }
+    setDeleting(false);
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({ title: "Copied", description: "License key copied to clipboard." });
+  };
+
+  const openEditSheet = (license: any) => {
     setSelectedLicense(license);
-    await fetchDomains(license.id);
+    setFormData({
+      license_key: license.license_key || "",
+      client_project_id: license.client_project_id || "",
+      status: license.status || "active",
+      max_domains: license.max_domains?.toString() || "3",
+      expires_at: license.expires_at ? license.expires_at.split("T")[0] : "",
+    });
+    setIsDetailSheetOpen(true);
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'default';
-      case 'locked': return 'destructive';
-      case 'expired': return 'secondary';
-      default: return 'outline';
+      case "active":
+        return "default";
+      case "suspended":
+      case "locked":
+        return "secondary";
+      case "expired":
+        return "destructive";
+      default:
+        return "outline";
     }
   };
 
   return (
     <AdminLayout>
-      <div className="space-y-8">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="flex items-center justify-between gap-3"
-        >
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
           <div>
-            <p className="pill w-fit">Licenses</p>
-            <h1 className="text-3xl font-bold">License Management</h1>
-            <p className="text-muted-foreground">Manage activation keys, domains, and status.</p>
+            <h1 className="text-3xl font-bold">Licenses</h1>
+            <p className="text-muted-foreground">Manage software licenses</p>
           </div>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button className="group">
-                <Plus className="mr-2 h-4 w-4" /> New License
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-xl surface-card border border-border/60">
-              <DialogHeader>
-                <DialogTitle>Create License</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <Input
-                  placeholder="License key"
-                  value={formData.license_key}
-                  onChange={(e) => setFormData({ ...formData, license_key: e.target.value })}
-                  required
-                />
-                <Input
-                  placeholder="Max domains"
-                  type="number"
-                  min={1}
-                  value={formData.max_domains}
-                  onChange={(e) => setFormData({ ...formData, max_domains: Number(e.target.value) })}
-                />
-                <div className="flex gap-2">
-                  <Button type="submit" className="flex-1">Create</Button>
-                  <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </motion.div>
+          <Button
+            onClick={() => {
+              resetForm();
+              setIsCreateDialogOpen(true);
+            }}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Create License
+          </Button>
+        </div>
 
-        <Card className="surface-card border border-border/60">
-          <CardHeader>
-            <CardTitle>Licenses</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Key</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Max Domains</TableHead>
-                  <TableHead>Project</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {licenses.map((license) => (
-                  <TableRow key={license.id} className="hover:bg-muted/50">
-                    <TableCell><code className="text-xs bg-muted px-2 py-1 rounded">{license.license_key}</code></TableCell>
-                    <TableCell><Badge variant={getStatusColor(license.status)}>{license.status}</Badge></TableCell>
-                    <TableCell>{license.max_domains}</TableCell>
-                    <TableCell>{license.client_projects?.projects?.title || '—'}</TableCell>
-                    <TableCell className="flex flex-wrap gap-2">
-                      <Button size="sm" variant="outline" onClick={() => handleViewDetails(license)}>
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => handleToggleLock(license)}>
-                        {license.status === 'active' ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
-                      </Button>
-                      <Button size="sm" variant="destructive" onClick={() => handleDelete(license.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+        <Card>
+          <CardContent className="p-6">
+            <div className="relative mb-4">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Filter licenses..."
+                className="pl-8"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+
+            {loading ? (
+              <div className="space-y-4">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="flex items-center gap-4">
+                    <Skeleton className="h-4 w-40" />
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-4 w-20 ml-auto" />
+                  </div>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>License Key</TableHead>
+                    <TableHead>Project</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Expires</TableHead>
+                    <TableHead className="w-10"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredLicenses?.map((license) => (
+                    <TableRow
+                      key={license.id}
+                      className="cursor-pointer"
+                      onClick={() => openEditSheet(license)}
+                    >
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <code className="text-sm bg-muted px-2 py-1 rounded">
+                            {license.license_key.substring(0, 14)}...
+                          </code>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              copyToClipboard(license.license_key);
+                            }}
+                          >
+                            <Copy className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                      <TableCell>{license.client_projects?.projects?.title || "â€”"}</TableCell>
+                      <TableCell>
+                        <Badge variant={getStatusColor(license.status || "")}>{license.status}</Badge>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {license.expires_at ? format(new Date(license.expires_at), "MMM dd, yyyy") : "Never"}
+                      </TableCell>
+                      <TableCell onClick={(e) => e.stopPropagation()}>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => openEditSheet(license)}>
+                              <Edit className="h-4 w-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => copyToClipboard(license.license_key)}>
+                              <Copy className="h-4 w-4 mr-2" />
+                              Copy Key
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-destructive"
+                              onClick={() => {
+                                setSelectedLicense(license);
+                                setIsDeleteDialogOpen(true);
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+
+            {!loading && (!filteredLicenses || filteredLicenses.length === 0) && (
+              <div className="text-center py-12 text-muted-foreground">
+                <Key className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>No licenses found</p>
+              </div>
+            )}
           </CardContent>
         </Card>
-
-        {selectedLicense && (
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card className="surface-card border border-border/60">
-              <CardHeader>
-                <CardTitle>License Details</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4 text-primary" />
-                  <span>Key: {selectedLicense.license_key}</span>
-                </div>
-                <div>Status: <Badge variant={getStatusColor(selectedLicense.status)}>{selectedLicense.status}</Badge></div>
-                <div>Max Domains: {selectedLicense.max_domains}</div>
-                <div>Project: {selectedLicense.client_projects?.projects?.title || '—'}</div>
-              </CardContent>
-            </Card>
-
-            <Card className="surface-card border border-border/60">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Globe className="h-4 w-4" /> Domains
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {domains.length ? (
-                  <div className="space-y-2 text-sm">
-                    {domains.map((domain) => (
-                      <div key={domain.id} className="flex items-center justify-between rounded border border-border/60 px-3 py-2">
-                        <span>{domain.domain}</span>
-                        <span className="text-xs text-muted-foreground">Last seen: {new Date(domain.last_seen).toLocaleDateString()}</span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-muted-foreground text-sm">No domains recorded.</p>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        )}
       </div>
+
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Create New License</DialogTitle>
+            <DialogDescription>Generate a new license key</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>License Key</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={formData.license_key}
+                  onChange={(e) => setFormData({ ...formData, license_key: e.target.value })}
+                  className="font-mono"
+                />
+                <Button
+                  variant="outline"
+                  onClick={() => setFormData({ ...formData, license_key: generateLicenseKey() })}
+                >
+                  Generate
+                </Button>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Client Project</Label>
+              <Select
+                value={formData.client_project_id}
+                onValueChange={(v) => setFormData({ ...formData, client_project_id: v })}
+                disabled={!clientProjects?.length}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={clientProjects?.length ? "Select a project" : "No client projects found"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {clientProjects?.map((cp) => (
+                    <SelectItem key={cp.id} value={cp.id}>
+                      {cp.projects?.title || cp.id}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {!clientProjects?.length && (
+                <p className="text-xs text-muted-foreground">No client projects available. Create a client project first.</p>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Status</Label>
+                <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="suspended">Suspended</SelectItem>
+                    <SelectItem value="expired">Expired</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Max Domains</Label>
+                <Input
+                  type="number"
+                  value={formData.max_domains}
+                  onChange={(e) => setFormData({ ...formData, max_domains: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Expiration Date</Label>
+              <Input
+                type="date"
+                value={formData.expires_at}
+                onChange={(e) => setFormData({ ...formData, expires_at: e.target.value })}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreate} disabled={saving}>
+              {saving ? "Creating..." : "Create License"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Sheet open={isDetailSheetOpen} onOpenChange={setIsDetailSheetOpen}>
+        <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Edit License</SheetTitle>
+            <SheetDescription>Update license details</SheetDescription>
+          </SheetHeader>
+          <div className="space-y-4 py-6">
+            <div className="space-y-2">
+              <Label>License Key</Label>
+              <div className="flex gap-2">
+                <Input value={formData.license_key} disabled className="font-mono" />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => copyToClipboard(formData.license_key)}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Status</Label>
+              <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="suspended">Suspended</SelectItem>
+                  <SelectItem value="expired">Expired</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Max Domains</Label>
+              <Input
+                type="number"
+                value={formData.max_domains}
+                onChange={(e) => setFormData({ ...formData, max_domains: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Expiration Date</Label>
+              <Input
+                type="date"
+                value={formData.expires_at}
+                onChange={(e) => setFormData({ ...formData, expires_at: e.target.value })}
+              />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button className="flex-1" onClick={handleUpdate} disabled={saving}>
+              {saving ? "Saving..." : "Save Changes"}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                setIsDetailSheetOpen(false);
+                setIsDeleteDialogOpen(true);
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete this license. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={deleting}
+            >
+              {deleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AdminLayout>
   );
 };

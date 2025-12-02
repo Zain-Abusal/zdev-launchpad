@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Users,
@@ -28,6 +28,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 
 export const AdminSidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
@@ -94,7 +95,10 @@ export const AdminSidebar = () => {
         </Button>
         <Button
           variant="ghost"
-          onClick={signOut}
+          onClick={async () => {
+            await signOut();
+            navigate('/auth/sign-in', { replace: true });
+          }}
           size="sm"
           className="w-full justify-start"
         >

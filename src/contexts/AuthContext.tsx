@@ -55,7 +55,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isAdmin = user?.email === ADMIN_EMAIL;
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    // Optimistically clear local state so UI routes away even if network fails
+    setUser(null);
+    setSession(null);
+    setLoading(false);
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error("Error during sign out", err);
+    }
   };
 
   return (

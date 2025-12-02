@@ -33,6 +33,8 @@ import ClientProjects from "./pages/client/Projects";
 import ClientProjectDetail from "./pages/client/ProjectDetail";
 import ClientProfile from "./pages/client/Profile";
 import ClientBilling from "./pages/client/Billing";
+import ClientLicense from "./pages/client/License";
+import ClientSupport from "./pages/client/Support";
 
 // Admin Pages
 import AdminDashboard from "./pages/admin/Dashboard";
@@ -96,6 +98,8 @@ const App = () => (
               <Route path="/client/projects/:id" element={<ClientProjectDetail />} />
               <Route path="/client/profile" element={<ClientProfile />} />
               <Route path="/client/billing" element={<ClientBilling />} />
+              <Route path="/client/license" element={<ClientLicense />} />
+              <Route path="/client/support" element={<ClientSupport />} />
 
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminDashboard />} />

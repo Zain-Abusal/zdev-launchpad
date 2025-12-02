@@ -1,21 +1,40 @@
-import { useEffect, useState } from 'react';
-import { ClientLayout } from '@/components/layout/ClientLayout';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { MessageSquare, Paperclip, Loader2, PlusCircle } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { logActivity } from '@/lib/activityLogger';
+import { useEffect, useState } from "react";
+import { ClientLayout } from "@/components/layout/ClientLayout";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { MessageSquare, Paperclip, Loader2, PlusCircle, CheckCircle2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { logActivity } from "@/lib/activityLogger";
+import { useToast } from "@/hooks/use-toast";
+
+const retry = async <T,>(fn: () => Promise<T>, attempts = 3, delayMs = 400): Promise<T> => {
+  let lastErr;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      await new Promise((res) => setTimeout(res, delayMs * (i + 1)));
+    }
+  }
+  throw lastErr;
+};
 
 const ClientSupport = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [tickets, setTickets] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [newTicket, setNewTicket] = useState({ subject: '', message: '', file: null });
+  const [newTicket, setNewTicket] = useState<{ subject: string; message: string; file: File | null }>({
+    subject: "",
+    message: "",
+    file: null,
+  });
 
   useEffect(() => {
     if (user) fetchTickets();
@@ -23,43 +42,68 @@ const ClientSupport = () => {
 
   const fetchTickets = async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from('support_tickets')
-      .select('*')
-      .eq('client_id', user.id)
-      .order('created_at', { ascending: false });
-    setTickets(data || []);
+    const { data, error } = await retry(() =>
+      supabase
+        .from('support_tickets')
+        .select('*')
+        .eq('client_id', user.id)
+        .order('created_at', { ascending: false })
+    );
+    if (error) {
+      toast({ title: "Error", description: "Could not load tickets.", variant: "destructive" });
+      setTickets([]);
+    } else {
+      setTickets(data || []);
+    }
     setLoading(false);
   };
 
   const handleCreateTicket = async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from('support_tickets')
-      .insert({
-        client_id: user.id,
-        subject: newTicket.subject,
-        status: 'Open',
-        priority: 'Normal',
-        created_at: new Date().toISOString(),
-      })
-      .select();
+    const { data, error } = await retry(() =>
+      supabase
+        .from('support_tickets')
+        .insert({
+          client_id: user.id,
+          subject: newTicket.subject,
+          status: 'Open',
+          priority: 'Normal',
+          created_at: new Date().toISOString(),
+        })
+        .select()
+    );
+    if (error) {
+      toast({ title: "Error", description: "Could not create ticket.", variant: "destructive" });
+      setLoading(false);
+      return;
+    }
+
     if (data && data[0]) {
+      const ticketId = data[0].id;
       await supabase.from('ticket_messages').insert({
-        ticket_id: data[0].id,
+        ticket_id: ticketId,
         sender_id: user.id,
         message: newTicket.message,
         created_at: new Date().toISOString(),
       });
+
       // Handle file upload if present
       if (newTicket.file) {
-        // File upload logic here (Supabase Storage)
+        const path = `support/${ticketId}-${Date.now()}-${newTicket.file.name}`;
+        const { error: uploadError } = await supabase.storage.from('project-requests').upload(path, newTicket.file);
+        if (!uploadError) {
+          await supabase
+            .from('ticket_attachments')
+            .insert({ ticket_id: ticketId, file_path: path, created_at: new Date().toISOString() });
+        }
       }
+
       logActivity({
         action: 'support_ticket_created',
         details: `Ticket: ${newTicket.subject}`,
         userId: user.id,
       });
+      toast({ title: "Ticket submitted", description: "We'll reply soon." });
       setNewTicket({ subject: '', message: '', file: null });
       fetchTickets();
     }

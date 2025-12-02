@@ -1,53 +1,97 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { ClientLayout } from '@/components/layout/ClientLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { FolderKanban, Activity, Bell, MessageSquare, Sparkles } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { logActivity } from '@/lib/activityLogger';
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { ClientLayout } from "@/components/layout/ClientLayout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { FolderKanban, Activity, MessageSquare, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { logActivity } from "@/lib/activityLogger";
+import { useToast } from "@/hooks/use-toast";
+
+const retry = async <T,>(fn: () => Promise<T>, attempts = 3, delayMs = 400): Promise<T> => {
+  let lastErr;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      await new Promise((res) => setTimeout(res, delayMs * (i + 1)));
+    }
+  }
+  throw lastErr;
+};
 
 const ClientDashboard = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [projects, setProjects] = useState<any[]>([]);
+  const [tickets, setTickets] = useState<any[]>([]);
+  const [activity, setActivity] = useState<any[]>([]);
   const [logged, setLogged] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
-      fetchProjects();
+      loadData();
       if (!logged) {
-        logActivity({ action: 'client_dashboard_view', details: 'Viewed Client Dashboard', userId: user.id });
+        logActivity({ action: "client_dashboard_view", details: "Viewed Client Dashboard", userId: user.id });
         setLogged(true);
       }
     }
   }, [user, logged]);
 
-  const fetchProjects = async () => {
-    const { data } = await supabase
-      .from('client_projects')
-      .select(`
-        *,
-        projects (*)
-      `)
-      .limit(5);
-    if (data) {
-      const projectsList = data.map(cp => cp.projects).filter(Boolean);
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const [projectsRes, ticketsRes, activityRes] = await Promise.all([
+        retry(() =>
+          supabase
+            .from("client_projects")
+            .select("*, projects(*)")
+            .eq("client_id", user?.id)
+            .limit(5)
+        ),
+        retry(() =>
+          supabase
+            .from("support_tickets")
+            .select("*")
+            .eq("client_id", user?.id)
+            .order("created_at", { ascending: false })
+            .limit(5)
+        ),
+        retry(() =>
+          supabase
+            .from("ticket_messages")
+            .select("*, support_tickets(subject)")
+            .eq("sender_id", user?.id)
+            .order("created_at", { ascending: false })
+            .limit(5)
+        ),
+      ]);
+
+      if (projectsRes.error) throw projectsRes.error;
+      if (ticketsRes.error) throw ticketsRes.error;
+      if (activityRes.error) throw activityRes.error;
+
+      const projectsList = (projectsRes.data || []).map((cp: any) => cp.projects).filter(Boolean);
       setProjects(projectsList);
+      setTickets(ticketsRes.data || []);
+      setActivity(activityRes.data || []);
+    } catch (err) {
+      console.error(err);
+      toast({ title: "Error loading dashboard", description: "Could not load your data.", variant: "destructive" });
+    } finally {
+      setLoading(false);
     }
   };
 
   const stats = [
-    { label: 'Total Projects', value: projects.length, icon: FolderKanban },
-    { label: 'Active Systems', value: projects.filter((p: any) => p.type === 'system').length, icon: Activity },
-    { label: 'Latest Update', value: 'Today', icon: Bell },
-  ];
-
-  const notifications = [
-    { title: 'Documentation Updated', description: 'New guides available for your project', time: '2h ago' },
-    { title: 'New Version Available', description: 'Update available for your dashboard', time: '1d ago' },
+    { label: "Total Projects", value: projects.length, icon: FolderKanban },
+    { label: "Open Tickets", value: tickets.filter((t: any) => (t.status || "").toLowerCase() !== "closed").length, icon: MessageSquare },
+    { label: "Active Systems", value: projects.filter((p: any) => p?.type === "system").length, icon: Activity },
   ];
 
   return (
@@ -136,23 +180,29 @@ const ClientDashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Notifications */}
           <Card className="surface-card border border-border/60">
             <CardHeader>
-              <CardTitle>Notifications</CardTitle>
+              <CardTitle>Support Tickets</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {notifications.map((notification, index) => (
-                  <div key={index} className="flex gap-3 rounded-2xl border border-border/60 p-3">
-                    <Bell className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                    <div className="flex-1">
-                      <h4 className="font-medium text-sm">{notification.title}</h4>
-                      <p className="text-xs text-muted-foreground">{notification.description}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{notification.time}</p>
+                {tickets.length ? (
+                  tickets.map((ticket) => (
+                    <div key={ticket.id} className="flex gap-3 rounded-2xl border border-border/60 p-3">
+                      <MessageSquare className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <div className="flex-1">
+                        <h4 className="font-medium text-sm">{ticket.subject}</h4>
+                        <p className="text-xs text-muted-foreground">{ticket.status || "Open"}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {ticket.created_at ? new Date(ticket.created_at).toLocaleString() : ""}
+                        </p>
+                      </div>
+                      <Badge variant="outline">{ticket.priority || "Normal"}</Badge>
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center">No tickets yet.</p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -164,17 +214,23 @@ const ClientDashboard = () => {
             <CardTitle>Recent Activity</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {['Project documentation accessed', 'License verified', 'Support ticket created'].map((activity, index) => (
-                <div key={activity} className="flex items-center gap-3 text-sm">
-                  <div className="h-2 w-2 rounded-full bg-primary" />
-                  <span className="text-muted-foreground">{activity}</span>
-                  <span className="text-xs text-muted-foreground ml-auto">
-                    {index === 0 ? 'Just now' : `${index}h ago`}
-                  </span>
-                </div>
-              ))}
-            </div>
+            {activity.length ? (
+              <div className="space-y-3">
+                {activity.map((item) => (
+                  <div key={item.id} className="flex items-center gap-3 text-sm">
+                    <div className="h-2 w-2 rounded-full bg-primary" />
+                    <span className="text-muted-foreground">
+                      {item.support_tickets?.subject ? `Ticket: ${item.support_tickets.subject}` : "Message sent"}
+                    </span>
+                    <span className="text-xs text-muted-foreground ml-auto">
+                      {item.created_at ? new Date(item.created_at).toLocaleString() : ""}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">No recent activity.</p>
+            )}
           </CardContent>
         </Card>
       </div>

@@ -6,7 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import * as Sentry from "@sentry/react";
 
+Sentry.logger.info('User triggered test log', { log_source: 'sentry_test' })
 const Blog = () => {
   const [posts, setPosts] = useState<any[]>([]);
 

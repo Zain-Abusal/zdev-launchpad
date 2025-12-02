@@ -1,5 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Newsreader:wght@500;600;700&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -10,87 +9,87 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 98%;
-    --foreground: 0 0% 10%;
+    --background: 210 33% 97%;
+    --foreground: 222 45% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
+    --card-foreground: 222 45% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
+    --popover-foreground: 222 45% 12%;
 
-    --primary: 0 0% 12%;
-    --primary-foreground: 0 0% 96%;
+    --primary: 214 86% 56%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 94%;
-    --secondary-foreground: 0 0% 10%;
+    --secondary: 216 25% 92%;
+    --secondary-foreground: 222 45% 20%;
 
-    --muted: 0 0% 90%;
-    --muted-foreground: 0 0% 40%;
+    --muted: 216 20% 90%;
+    --muted-foreground: 222 16% 40%;
 
-    --accent: 0 0% 92%;
-    --accent-foreground: 0 0% 12%;
+    --accent: 26 90% 62%;
+    --accent-foreground: 222 45% 12%;
 
-    --destructive: 0 75% 55%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 350 74% 54%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 82%;
-    --input: 0 0% 82%;
-    --ring: 0 0% 12%;
+    --border: 216 22% 85%;
+    --input: 216 22% 85%;
+    --ring: 214 86% 56%;
 
     --radius: 0.5rem;
     
     /* Vibrant accent colors */
-    --cyan: 0 0% 55%;
-    --cyan-light: 0 0% 72%;
-    --purple: 0 0% 40%;
-    --purple-light: 0 0% 60%;
-    --pink: 0 0% 65%;
-    --pink-light: 0 0% 78%;
+    --cyan: 200 90% 45%;
+    --cyan-light: 200 90% 70%;
+    --purple: 262 68% 55%;
+    --purple-light: 262 68% 72%;
+    --pink: 330 75% 58%;
+    --pink-light: 330 75% 72%;
     
     /* Enhanced shadows */
     --shadow-elegant: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
     --shadow-glow: 0 0 60px rgba(0, 0, 0, 0.08);
     
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--cyan)));
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
     --gradient-accent: linear-gradient(135deg, hsl(var(--purple)), hsl(var(--pink)));
     
     /* Animations */
     --transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 
-    --sidebar-background: 0 0% 98%;
+    --sidebar-background: 216 25% 96%;
 
-    --sidebar-foreground: 222 47% 11%;
+    --sidebar-foreground: 222 45% 15%;
 
-    --sidebar-primary: 216 19% 26%;
+    --sidebar-primary: 214 86% 56%;
 
-    --sidebar-primary-foreground: 210 19% 98%;
+    --sidebar-primary-foreground: 0 0% 100%;
 
-    --sidebar-accent: 215 19% 34%;
+    --sidebar-accent: 216 25% 92%;
 
-    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-accent-foreground: 222 45% 15%;
 
-    --sidebar-border: 212 26% 83%;
+    --sidebar-border: 216 22% 85%;
 
-    --sidebar-ring: 216 19% 26%;
+    --sidebar-ring: 214 86% 56%;
 
-    --chart-1: 217 10% 64%;
+    --chart-1: 214 86% 56%;
 
-    --chart-2: 215 20% 65%;
+    --chart-2: 26 90% 62%;
 
-    --chart-3: 215 16% 46%;
+    --chart-3: 262 68% 55%;
 
-    --chart-4: 219 8% 46%;
+    --chart-4: 200 90% 45%;
 
-    --chart-5: 215 19% 34%;
+    --chart-5: 222 16% 40%;
 
-    --sidebar: 210 40% 98%;
+    --sidebar: 216 25% 96%;
 
-    --font-sans: 'DM Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+    --font-sans: 'Space Grotesk', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
 
-    --font-serif: 'Crimson Pro', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+    --font-serif: 'Newsreader', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
 
     --font-mono: 'SF Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 
@@ -116,58 +115,58 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 215 25% 8%;
-    --foreground: 0 0% 96%;
+    --background: 230 38% 6%;
+    --foreground: 210 45% 96%;
 
-    --card: 215 22% 10%;
-    --card-foreground: 0 0% 96%;
+    --card: 230 32% 10%;
+    --card-foreground: 210 45% 96%;
 
-    --popover: 215 22% 10%;
-    --popover-foreground: 0 0% 96%;
+    --popover: 230 32% 10%;
+    --popover-foreground: 210 45% 96%;
 
-    --primary: 212 100% 60%;
-    --primary-foreground: 215 25% 8%;
+    --primary: 214 86% 56%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 215 18% 16%;
-    --secondary-foreground: 0 0% 96%;
+    --secondary: 232 22% 18%;
+    --secondary-foreground: 210 45% 90%;
 
-    --muted: 215 15% 18%;
-    --muted-foreground: 0 0% 78%;
+    --muted: 230 20% 22%;
+    --muted-foreground: 215 18% 76%;
 
-    --accent: 215 18% 16%;
-    --accent-foreground: 0 0% 96%;
+    --accent: 26 90% 62%;
+    --accent-foreground: 229 40% 10%;
 
-    --destructive: 0 60% 45%;
+    --destructive: 350 77% 55%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 215 15% 22%;
-    --input: 215 15% 22%;
-    --ring: 212 100% 60%;
+    --border: 228 22% 24%;
+    --input: 228 22% 24%;
+    --ring: 214 86% 56%;
     
-    --sidebar-background: 0 0% 3.9%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 0 0% 98%;
-    --sidebar-primary-foreground: 0 0% 9%;
-    --sidebar-accent: 240 4% 16%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 240 4% 16%;
-    --sidebar-ring: 0 0% 83%;
+    --sidebar-background: 229 32% 8%;
+    --sidebar-foreground: 210 45% 96%;
+    --sidebar-primary: 214 86% 56%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 232 22% 16%;
+    --sidebar-accent-foreground: 210 45% 96%;
+    --sidebar-border: 228 22% 24%;
+    --sidebar-ring: 214 86% 56%;
     
-    --chart-1: 212 100% 60%;
-    --chart-2: 215 22% 70%;
-    --chart-3: 215 18% 55%;
-    --chart-4: 0 0% 70%;
-    --chart-5: 0 0% 50%;
+    --chart-1: 214 86% 56%;
+    --chart-2: 26 90% 62%;
+    --chart-3: 262 68% 64%;
+    --chart-4: 200 90% 50%;
+    --chart-5: 222 20% 60%;
     
-    --sidebar: 0 0% 6%;
+    --sidebar: 230 32% 8%;
     
     /* Vibrant accent colors for dark mode */
-    --cyan: 204 80% 58%;
-    --cyan-light: 204 80% 70%;
-    --purple: 260 65% 60%;
-    --purple-light: 260 65% 72%;
-    --pink: 330 70% 62%;
-    --pink-light: 330 70% 75%;
+    --cyan: 200 90% 55%;
+    --cyan-light: 200 90% 68%;
+    --purple: 262 68% 62%;
+    --purple-light: 262 68% 74%;
+    --pink: 330 75% 64%;
+    --pink-light: 330 75% 72%;
   }
 }
 
@@ -179,19 +178,19 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground font-sans antialiased;
     background-image:
-      radial-gradient(circle at 10% 20%, hsla(var(--cyan), 0.12), transparent 35%),
-      radial-gradient(circle at 90% 10%, hsla(var(--purple), 0.12), transparent 35%),
-      radial-gradient(circle at 50% 100%, hsla(var(--pink), 0.1), transparent 40%),
-      linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
+      radial-gradient(circle at 12% 18%, hsla(var(--cyan), 0.18), transparent 36%),
+      radial-gradient(circle at 82% 12%, hsla(var(--purple), 0.16), transparent 34%),
+      radial-gradient(circle at 50% 90%, hsla(var(--accent), 0.12), transparent 42%),
+      linear-gradient(180deg, hsl(var(--background)), hsl(var(--secondary)));
     background-attachment: fixed;
   }
 
   .dark body {
     background-image:
-      radial-gradient(circle at 15% 20%, rgba(56, 189, 248, 0.12), transparent 35%),
-      radial-gradient(circle at 85% 10%, rgba(167, 139, 250, 0.12), transparent 35%),
-      radial-gradient(circle at 50% 100%, rgba(244, 114, 182, 0.12), transparent 40%),
-      linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
+      radial-gradient(circle at 16% 20%, hsla(var(--accent), 0.18), transparent 36%),
+      radial-gradient(circle at 86% 12%, hsla(var(--cyan), 0.18), transparent 34%),
+      radial-gradient(circle at 50% 92%, hsla(var(--purple), 0.14), transparent 42%),
+      linear-gradient(180deg, hsl(var(--background)), hsl(var(--secondary)));
   }
   
   h1, h2, h3, h4, h5, h6 {
@@ -229,28 +228,28 @@ All colors MUST be HSL.
     content: "";
     @apply absolute inset-0 pointer-events-none;
     background-image:
-      radial-gradient(circle at 20% 20%, hsla(var(--cyan), 0.12), transparent 35%),
-      radial-gradient(circle at 80% 10%, hsla(var(--purple), 0.12), transparent 35%),
-      radial-gradient(circle at 50% 90%, hsla(var(--pink), 0.1), transparent 40%);
+      radial-gradient(circle at 20% 24%, hsla(var(--cyan), 0.14), transparent 34%),
+      radial-gradient(circle at 82% 10%, hsla(var(--purple), 0.14), transparent 34%),
+      radial-gradient(circle at 50% 90%, hsla(var(--accent), 0.1), transparent 40%);
   }
 
   .dark .page-section::before {
     background-image:
-      radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.14), transparent 35%),
-      radial-gradient(circle at 80% 10%, rgba(167, 139, 250, 0.14), transparent 35%),
-      radial-gradient(circle at 50% 90%, rgba(244, 114, 182, 0.12), transparent 40%);
+      radial-gradient(circle at 20% 24%, hsla(var(--accent), 0.18), transparent 34%),
+      radial-gradient(circle at 82% 10%, hsla(var(--cyan), 0.18), transparent 34%),
+      radial-gradient(circle at 50% 90%, hsla(var(--purple), 0.12), transparent 40%);
   }
 
   .surface-card {
-    @apply rounded-3xl border border-border/60 bg-card/90 shadow-xl backdrop-blur;
+    @apply rounded-3xl border border-border/50 bg-card/90 shadow-xl backdrop-blur;
   }
 
   .pill {
-    @apply inline-flex items-center gap-2 rounded-full border border-border/70 bg-secondary/70 px-4 py-2 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/60 hover:text-primary;
+    @apply inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary/15;
   }
   
   .gradient-primary {
-    background: linear-gradient(135deg, hsl(var(--cyan)), hsl(var(--purple)));
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
   }
   
   .gradient-accent {
