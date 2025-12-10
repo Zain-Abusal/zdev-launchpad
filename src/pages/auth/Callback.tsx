@@ -1,45 +1,18 @@
-import React, { useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { Loader2 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import React, { useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { Loader2 } from "lucide-react";
+import { useAuth as useClerkAuth } from "@clerk/clerk-react";
 
 const Callback = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user } = useAuth();
+  const { isLoaded, isSignedIn } = useClerkAuth();
 
   useEffect(() => {
-    const handleAuthCallback = async () => {
-      try {
-        // Handle the auth callback
-        const { data, error } = await supabase.auth.getSession();
-        if (error) {
-          console.error('Auth callback error:', error);
-          navigate('/auth?error=callback_failed');
-          return;
-        }
-        if (data?.session) {
-          // Get redirect URL from state or default to dashboard
-          const redirectTo = searchParams.get('redirect_to') || '/';
-          navigate(redirectTo, { replace: true });
-        } else {
-          // No session found, redirect to auth
-          navigate('/auth', { replace: true });
-        }
-      } catch (error) {
-        console.error('Auth callback error:', error);
-        navigate('/auth?error=callback_failed', { replace: true });
-      }
-    };
-    // Only handle callback if user is not already authenticated
-    if (!user) {
-      handleAuthCallback();
-    } else {
-      // User is already authenticated, redirect to root
-      navigate('/', { replace: true });
-    }
-  }, [navigate, searchParams, user]);
+    if (!isLoaded) return;
+    const redirectTo = searchParams.get("redirect_to") || "/";
+    navigate(isSignedIn ? redirectTo : "/auth/sign-in", { replace: true });
+  }, [isLoaded, isSignedIn, navigate, searchParams]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">

@@ -62,7 +62,7 @@ export const Header = () => {
                     onChange={(e) => setSearch(e.target.value)}
                     onFocus={() => setFocused(true)}
                     onBlur={() => setFocused(false)}
-                    placeholder="Search…"
+                    placeholder="Search"
                     className="h-7 w-48 border-0 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-0"
                   />
                 </motion.div>

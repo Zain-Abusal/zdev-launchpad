@@ -1,30 +1,17 @@
-import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import * as Sentry from "@sentry/react";
 
 Sentry.logger.info('User triggered test log', { log_source: 'sentry_test' })
 const Blog = () => {
-  const [posts, setPosts] = useState<any[]>([]);
-
-  useEffect(() => {
-    fetchPosts();
-  }, []);
-
-  const fetchPosts = async () => {
-    const { data } = await supabase
-      .from("blog_posts")
-      .select("*")
-      .eq("published", true)
-      .order("created_at", { ascending: false });
-
-    if (data) setPosts(data);
-  };
+  const posts = useQuery(api.blog.list, { search: undefined });
+  const loading = posts === undefined;
 
   return (
     <PublicLayout>
@@ -45,7 +32,12 @@ const Blog = () => {
           </motion.div>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {posts.map((post, index) => (
+            {loading && (
+              <div className="md:col-span-2 lg:col-span-3 text-center text-muted-foreground">
+                Loading posts...
+              </div>
+            )}
+            {(posts ?? []).map((post, index) => (
               <motion.div
                 key={post.id}
                 initial={{ opacity: 0, y: 10 }}
@@ -71,7 +63,7 @@ const Blog = () => {
                       <CardTitle className="text-lg font-semibold text-foreground mb-1 line-clamp-2">{post.title}</CardTitle>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <Calendar className="h-4 w-4" />
-                        {new Date(post.created_at).toLocaleDateString()}
+                        {post.createdAt ? new Date(post.createdAt).toLocaleDateString() : "Just now"}
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-3 px-0">
